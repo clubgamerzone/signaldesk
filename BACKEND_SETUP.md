@@ -10,6 +10,7 @@ The repository contains the production foundation for authentication, workspace 
 - September 1, 2026: created the `ClubGamerZone` workspace (`clubgamerzone`) and assigned the invited user the `owner` role. A verification query returned one matching user, one workspace and one owner membership.
 - September 1, 2026: the invitation confirmed the user, but its original callback used the incorrect default `http://localhost:3000` and displayed an expired-token error after confirmation.
 - September 1, 2026: changed the Auth Site URL to `http://127.0.0.1:5175`, allowed `http://127.0.0.1:5175/**` and `http://localhost:5175/**`, created the browser-safe `signaldesk_web` publishable key and sent a fresh password-recovery email.
+- September 1, 2026: connected the local repository to `https://github.com/clubgamerzone/signaldesk` and pushed the complete `main` history. Local `origin/main` now tracks the GitHub branch.
 - Next manual step: open the newest Supabase recovery email and choose a password on SignalDesk's password-setup screen. Do not store that password in this repository.
 
 ## 1. Supabase

@@ -17,6 +17,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - The Supabase user `josel.demoya@gmail.com` is confirmed and assigned as the workspace owner.
 - The invited user is already assigned as `owner` of the `ClubGamerZone` workspace. Database verification returned exactly one matching user, workspace and owner membership.
 - The local Supabase browser configuration is active, the allowed local callbacks use port `5175`, and a fresh password-recovery email was sent after correcting the original `localhost:3000` callback.
+- The source repository is `https://github.com/clubgamerzone/signaldesk`; branch `main` is pushed and ready to import into Netlify.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 
 ## Where everything is
@@ -87,6 +88,16 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 7. Add the OpenAI server key and model.
 8. Replace representative dashboard values with normalized live snapshots.
 9. Deploy and verify the dedicated Netlify site.
+
+## GitHub and Netlify deployment
+
+- GitHub repository: `https://github.com/clubgamerzone/signaldesk`
+- Production branch: `main`
+- Netlify build command: `npm run build`
+- Netlify publish directory: `dist`
+- Netlify Functions directory: `netlify/functions`
+
+After Netlify creates the site, copy its production URL into Supabase Authentication as the Site URL and add `https://<netlify-site>/**` to Redirect URLs. Then add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` to Netlify's environment variables. Server-only keys must never use the `VITE_` prefix.
 
 ## Local development
 
