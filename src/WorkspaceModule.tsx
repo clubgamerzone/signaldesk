@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ArrowUpRight, BarChart3, Bot, Building2, CheckCircle2,
-  CircleDollarSign, Database, Filter, Globe2,
+  ArrowUpRight, BadgeDollarSign, BarChart3, Bot, Building2, CheckCircle2,
+  CircleDollarSign, Database, Filter, Globe2, Smartphone,
   MoreHorizontal, Plus, Search, Target, X,
 } from 'lucide-react';
 
@@ -25,6 +25,7 @@ const campaigns = [
   { name: 'AI Automation Leads', channel: 'Meta Ads', product: 'ClubGamerZone website', spend: '$860', leads: 14, cpl: '$61.43', status: 'Active' },
   { name: 'CV Enhancer Launch', channel: 'Google Ads', product: 'CV Enhancer', spend: '$420', leads: 8, cpl: '$52.50', status: 'Draft' },
   { name: 'Organify Early Access', channel: 'Organic', product: 'Organify', spend: '$0', leads: 21, cpl: '$0', status: 'Active' },
+  { name: 'Mobile & Game Monetization', channel: 'Google AdMob', product: 'Apps & games', spend: '—', leads: 0, cpl: 'Revenue', status: 'Needs setup' },
 ];
 
 const connections = [
@@ -32,6 +33,7 @@ const connections = [
   { name: 'Netlify', owner: 'ClubGamerZone website', icon: Globe2, status: 'Needs token', detail: 'Deployments, forms and serverless events' },
   { name: 'Meta Business', owner: 'Marketing workspace', icon: Target, status: 'Not connected', detail: 'Campaigns, spend and lead attribution' },
   { name: 'Google Ads', owner: 'Marketing workspace', icon: CircleDollarSign, status: 'Not connected', detail: 'Search campaigns and conversion costs' },
+  { name: 'Google AdMob', owner: 'Apps & games portfolio', icon: Smartphone, status: 'Not connected', detail: 'Ad revenue, impressions, eCPM and fill rate' },
   { name: 'Firebase', owner: 'Organify / apps', icon: Database, status: 'Not connected', detail: 'App events and audience activity' },
   { name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, status: 'Endpoint pending', detail: 'Qualified conversations and summaries' },
 ];
@@ -72,7 +74,7 @@ export default function WorkspaceModule({ active, product, language, openLeadFor
 
     {active === 'Campaigns' && <div className="campaign-grid">{campaigns.map(item => <article className="campaign-card" key={item.name}><div className="campaign-head"><span className="campaign-icon"><Target size={17} /></span><Status value={item.status} /></div><h3>{item.name}</h3><p>{item.channel} · {item.product}</p><div className="campaign-stats"><span><small>Spend</small><strong>{item.spend}</strong></span><span><small>Leads</small><strong>{item.leads}</strong></span><span><small>CPL</small><strong>{item.cpl}</strong></span></div><button>View campaign <ArrowUpRight size={13} /></button></article>)}</div>}
 
-    {active === 'Analytics' && <><div className="module-kpis"><Kpi label="Tracked products" value="4" note="1 web · 2 apps · games" /><Kpi label="Total visits" value="184" note="Demo period" /><Kpi label="Inquiries" value="48" note="26.1% visit rate" /><Kpi label="Qualified leads" value="24" note="50% of inquiries" /></div><div className="data-panel"><div className="data-panel-head"><strong>Product performance</strong><span>Representative data</span></div><div className="product-performance">{['ClubGamerZone website','Organify','CV Enhancer','Games portfolio'].map((name, index) => <div key={name}><span>{name}</span><div><i style={{width: `${[82,58,66,43][index]}%`}} /></div><strong>{[96,42,58,31][index]} visits</strong></div>)}</div></div></>}
+    {active === 'Analytics' && <><div className="module-kpis"><Kpi label={text('Tracked products', 'Productos medidos')} value="4" note={text('1 web · 2 apps · games', '1 web · 2 apps · juegos')} /><Kpi label={text('Total visits', 'Visitas totales')} value="184" note={text('Demo period', 'Período demo')} /><Kpi label={text('AdMob revenue', 'Ingresos AdMob')} value="—" note={text('Connection required', 'Requiere conexión')} /><Kpi label={text('Google Ads spend', 'Inversión Google Ads')} value="—" note={text('Connection required', 'Requiere conexión')} /></div><div className="data-panel"><div className="data-panel-head"><strong>{text('Product performance', 'Rendimiento por producto')}</strong><span>{text('Representative data', 'Datos representativos')}</span></div><div className="product-performance">{['ClubGamerZone website','Organify','CV Enhancer','Games portfolio'].map((name, index) => <div key={name}><span>{name}</span><div><i style={{width: `${[82,58,66,43][index]}%`}} /></div><strong>{[96,42,58,31][index]} {text('visits', 'visitas')}</strong></div>)}</div></div><div className="ad-platform-strip"><div><span className="connection-icon"><CircleDollarSign size={17} /></span><p><strong>Google Ads</strong><small>{text('Acquisition: spend, clicks, conversions and qualified-lead cost', 'Adquisición: inversión, clics, conversiones y costo por prospecto calificado')}</small></p></div><div><span className="connection-icon"><BadgeDollarSign size={17} /></span><p><strong>Google AdMob</strong><small>{text('Monetization: revenue, impressions, eCPM and fill rate', 'Monetización: ingresos, impresiones, eCPM y tasa de cobertura')}</small></p></div></div></>}
 
     {active === 'Conversations' && <div className="conversation-layout"><div className="conversation-list"><button className="conversation-item selected"><span className="lead-avatar avatar-aqua">MR</span><span><strong>Mariana Rojas</strong><small>AI automation quotation</small></span><time>8m</time></button><button className="conversation-item"><span className="lead-avatar avatar-violet">SA</span><span><strong>Sofia Alvarez</strong><small>New website inquiry</small></span><time>2h</time></button><button className="conversation-item"><span className="lead-avatar avatar-coral">DL</span><span><strong>Daniel López</strong><small>Mobile product follow-up</small></span><time>1d</time></button></div><div className="conversation-preview"><div className="conversation-title"><div><strong>Mariana Rojas</strong><span>Northstar Health · AI assistant</span></div><Status value="Qualified" /></div><div className="summary-card"><Bot size={18} /><div><strong>Conversation summary</strong><p>Interested in automating intake and internal document review. Estimated 20–40 users. Requested a discovery call and a preliminary range.</p></div></div><div className="conversation-next"><CheckCircle2 size={17} /><div><strong>Recommended next action</strong><span>Reply with scheduling options and confirm the systems that require integration.</span></div></div><button className="button button-primary">Open conversation <ArrowUpRight size={14} /></button></div></div>}
 

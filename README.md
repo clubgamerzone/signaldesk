@@ -21,6 +21,7 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 - Searchable opportunity table and local add-lead confirmation flow.
 - Company, campaign, analytics, conversation and connection-registry views.
 - Honest pending states for every external integration.
+- Separate Google Ads acquisition reporting (spend, clicks, conversions and qualified-lead cost) from Google AdMob monetization reporting (revenue, impressions, eCPM and fill rate).
 - Persistent light/dark theme stored in browser preferences.
 - Persistent English/Spanish interface switcher with country flags; navigation, overview metrics, funnel, activity, connection states and primary module controls are translated.
 
