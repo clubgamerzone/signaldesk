@@ -26,13 +26,13 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 - Persistent light/dark theme stored in browser preferences.
 - Persistent English/Spanish interface switcher with country flags; navigation, overview metrics, funnel, activity, connection states and primary module controls are translated.
 
-The records and calculations remain representative UI data. Refreshing the browser resets lead-form entries because durable database persistence is intentionally deferred until authentication and workspace isolation are implemented.
+The records and calculations remain representative UI data until the new Supabase and connector configuration is activated. Refreshing the browser resets demo lead-form entries.
 
 ## Product direction
 
 ClubGamerZone is the first workspace (dogfooding). The data model should keep `workspace_id` on every business record so a future customer can have a fully isolated organization, users, roles, data and integrations.
 
-The CRM has its own repository, Netlify project, database, authentication and secrets. It is separate from `clubgamerzonewebapp`.
+The CRM is designed for its own repository, Netlify project, Supabase/PostgreSQL database, authentication and secrets. It is separate from `clubgamerzonewebapp`.
 
 ## Run locally
 
@@ -49,6 +49,15 @@ Then open the local URL printed by Vite.
 npm run build
 npm run preview
 ```
+
+Without environment variables, the dashboard intentionally runs in demo mode. Configure `.env.example` to activate authentication and server integrations. See `BACKEND_SETUP.md` for the exact sequence.
+
+## Backend foundation
+
+- Supabase authentication gate.
+- Multi-tenant PostgreSQL schema with `workspace_id` ownership and row-level security.
+- Authenticated Netlify Functions for connection readiness, read-only Google reporting and AI recommendations.
+- OpenAI Responses API output constrained by a strict recommendation JSON schema.
 
 ## Planned modules
 
