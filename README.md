@@ -4,7 +4,7 @@ Standalone CRM and marketing operations dashboard for ClubGamerZone, designed to
 
 ## Current milestone
 
-This first slice is a polished, responsive dashboard shell using representative data. It demonstrates the product direction: workspace switching, navigation, pipeline, lead activity, funnel reporting and an account/integration registry. Data persistence, authentication and external account connections are intentionally not faked yet.
+This first slice is a polished, responsive dashboard shell using representative demo data. It does **not** currently read live metrics from clubgamerzone.com, Google Analytics, Firebase, Meta or advertising accounts. It demonstrates the product direction: workspace switching, navigation, pipeline, lead activity, funnel reporting and an account/integration registry. Data persistence, authentication and external account connections will be added in later milestones rather than being presented as connected when they are not.
 
 ## Product direction
 
@@ -38,5 +38,17 @@ npm run preview
 - AI conversation summaries with consent and retention controls
 - Role-based access, workspace isolation and audit log
 - BigQuery analytics plus PostgreSQL operational CRM records
+
+## Product reporting model
+
+ClubGamerZone is the first workspace. Its products and properties will be separate reporting entities inside that workspace, for example:
+
+- ClubGamerZone marketing website
+- Organify
+- CV Enhancer / Currículo Claro
+- Games such as Hell Cemetery, Instruments of Faith and others
+- Future products or client workspaces
+
+Each entity gets its own analytics properties, event dictionary, campaigns and connection records. The dashboard can then show each product independently or aggregate the workspace into one view. The current Overview numbers are placeholders until those live connections and event pipelines are implemented.
 
 Never store passwords, API keys, OAuth tokens, verification codes or raw exports in ordinary CRM records.
