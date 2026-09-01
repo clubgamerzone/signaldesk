@@ -21,6 +21,8 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 - Searchable opportunity table and local add-lead confirmation flow.
 - Company, campaign, analytics, conversation and connection-registry views.
 - Honest pending states for every external integration.
+- Persistent light/dark theme stored in browser preferences.
+- Persistent English/Spanish interface switcher with country flags; navigation, overview metrics, funnel, activity, connection states and primary module controls are translated.
 
 The records and calculations remain representative UI data. Refreshing the browser resets lead-form entries because durable database persistence is intentionally deferred until authentication and workspace isolation are implemented.
 

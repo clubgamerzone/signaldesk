@@ -5,7 +5,7 @@ import {
   MoreHorizontal, Plus, Search, Target, X,
 } from 'lucide-react';
 
-type ModuleProps = { active: string; product: string; openLeadFormSignal?: number };
+type ModuleProps = { active: string; product: string; language: 'en' | 'es'; openLeadFormSignal?: number };
 
 const opportunities = [
   { name: 'Mariana Rojas', company: 'Northstar Health', service: 'AI automation', stage: 'Qualified', value: '$18k–$25k', source: 'AI assistant' },
@@ -36,7 +36,7 @@ const connections = [
   { name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, status: 'Endpoint pending', detail: 'Qualified conversations and summaries' },
 ];
 
-export default function WorkspaceModule({ active, product, openLeadFormSignal = 0 }: ModuleProps) {
+export default function WorkspaceModule({ active, product, language, openLeadFormSignal = 0 }: ModuleProps) {
   const [query, setQuery] = useState('');
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -44,26 +44,28 @@ export default function WorkspaceModule({ active, product, openLeadFormSignal = 
   const filteredOpportunities = useMemo(() => opportunities.filter(item =>
     `${item.name} ${item.company} ${item.service} ${item.stage}`.toLowerCase().includes(query.toLowerCase())
   ), [query]);
+  const es = language === 'es';
+  const text = (en: string, spanish: string) => es ? spanish : en;
 
-  const title = active === 'Leads & pipeline' ? 'Sales pipeline' : active;
+  const title = active === 'Leads & pipeline' ? text('Sales pipeline', 'Embudo de ventas') : active === 'Companies' ? text('Companies', 'Empresas') : active === 'Campaigns' ? text('Campaigns', 'Campañas') : active === 'Analytics' ? text('Analytics', 'Analítica') : active === 'Conversations' ? text('Conversations', 'Conversaciones') : text('Account registry', 'Registro de cuentas');
   const subtitles: Record<string, string> = {
-    'Leads & pipeline': 'Qualify every inquiry and keep the next action visible.',
-    Companies: 'A single relationship history for every account and client.',
-    Campaigns: 'Connect spend to inquiries, qualified leads and won work.',
-    Analytics: `Performance across ${product.toLowerCase()}.`,
-    Conversations: 'Review inquiries, AI summaries and human follow-up.',
-    'Account registry': 'Connection ownership and readiness without storing passwords.',
+    'Leads & pipeline': text('Qualify every inquiry and keep the next action visible.', 'Califica cada consulta y mantén visible la próxima acción.'),
+    Companies: text('A single relationship history for every account and client.', 'Un historial único de relación para cada cuenta y cliente.'),
+    Campaigns: text('Connect spend to inquiries, qualified leads and won work.', 'Relaciona la inversión con consultas, prospectos calificados y ventas.'),
+    Analytics: text(`Performance across ${product.toLowerCase()}.`, `Rendimiento de ${product.toLowerCase()}.`),
+    Conversations: text('Review inquiries, AI summaries and human follow-up.', 'Revisa consultas, resúmenes de IA y seguimiento humano.'),
+    'Account registry': text('Connection ownership and readiness without storing passwords.', 'Controla conexiones y responsables sin guardar contraseñas.'),
   };
 
   return <section className="workspace-module">
     <div className="module-header">
-      <div><p className="eyebrow"><span /> Workspace module</p><h2>{title}</h2><p>{subtitles[active]}</p></div>
-      <div className="module-actions"><label className="module-search"><Search size={14} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search this module" /></label><button className="button button-quiet"><Filter size={14} /> Filter</button>{active === 'Leads & pipeline' && <button className="button button-primary" onClick={() => setShowLeadForm(true)}><Plus size={15} /> Add lead</button>}</div>
+      <div><p className="eyebrow"><span /> {text('Workspace module', 'Módulo del espacio')}</p><h2>{title}</h2><p>{subtitles[active]}</p></div>
+      <div className="module-actions"><label className="module-search"><Search size={14} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={text('Search this module', 'Buscar en este módulo')} /></label><button className="button button-quiet"><Filter size={14} /> {text('Filter', 'Filtrar')}</button>{active === 'Leads & pipeline' && <button className="button button-primary" onClick={() => setShowLeadForm(true)}><Plus size={15} /> {text('Add lead', 'Añadir prospecto')}</button>}</div>
     </div>
 
     {active === 'Leads & pipeline' && <>
-      <div className="module-kpis"><Kpi label="New inquiries" value="12" note="4 need a response" /><Kpi label="Qualified" value="6" note="50% qualification rate" /><Kpi label="Proposals" value="4" note="$76k potential" /><Kpi label="Won" value="2" note="This month" /></div>
-      <div className="data-panel"><div className="data-panel-head"><strong>Active opportunities</strong><span>{filteredOpportunities.length} records</span></div><div className="table-scroll"><table><thead><tr><th>Contact</th><th>Service</th><th>Stage</th><th>Value</th><th>Source</th><th /></tr></thead><tbody>{filteredOpportunities.map(item => <tr key={item.name}><td><strong>{item.name}</strong><small>{item.company}</small></td><td>{item.service}</td><td><Status value={item.stage} /></td><td>{item.value}</td><td>{item.source}</td><td><button aria-label={`Actions for ${item.name}`}><MoreHorizontal size={16} /></button></td></tr>)}</tbody></table></div></div>
+      <div className="module-kpis"><Kpi label={text('New inquiries', 'Nuevas consultas')} value="12" note={text('4 need a response', '4 necesitan respuesta')} /><Kpi label={text('Qualified', 'Calificados')} value="6" note={text('50% qualification rate', '50% de calificación')} /><Kpi label={text('Proposals', 'Propuestas')} value="4" note={text('$76k potential', '$76k potencial')} /><Kpi label={text('Won', 'Ganados')} value="2" note={text('This month', 'Este mes')} /></div>
+      <div className="data-panel"><div className="data-panel-head"><strong>{text('Active opportunities', 'Oportunidades activas')}</strong><span>{filteredOpportunities.length} {text('records', 'registros')}</span></div><div className="table-scroll"><table><thead><tr><th>{text('Contact', 'Contacto')}</th><th>{text('Service', 'Servicio')}</th><th>{text('Stage', 'Etapa')}</th><th>{text('Value', 'Valor')}</th><th>{text('Source', 'Fuente')}</th><th /></tr></thead><tbody>{filteredOpportunities.map(item => <tr key={item.name}><td><strong>{item.name}</strong><small>{item.company}</small></td><td>{item.service}</td><td><Status value={item.stage} /></td><td>{item.value}</td><td>{item.source}</td><td><button aria-label={`${text('Actions for', 'Acciones para')} ${item.name}`}><MoreHorizontal size={16} /></button></td></tr>)}</tbody></table></div></div>
     </>}
 
     {active === 'Companies' && <div className="company-grid">{companies.filter(item => `${item.name} ${item.contact}`.toLowerCase().includes(query.toLowerCase())).map(item => <article className="company-card" key={item.name}><div className="company-icon"><Building2 size={18} /></div><Status value={item.status} /><h3>{item.name}</h3><p>{item.contact}</p><div><span><strong>{item.projects}</strong> Projects</span><span><strong>{item.value}</strong> Value</span></div><button>Open account <ArrowUpRight size={13} /></button></article>)}</div>}
@@ -74,9 +76,9 @@ export default function WorkspaceModule({ active, product, openLeadFormSignal = 
 
     {active === 'Conversations' && <div className="conversation-layout"><div className="conversation-list"><button className="conversation-item selected"><span className="lead-avatar avatar-aqua">MR</span><span><strong>Mariana Rojas</strong><small>AI automation quotation</small></span><time>8m</time></button><button className="conversation-item"><span className="lead-avatar avatar-violet">SA</span><span><strong>Sofia Alvarez</strong><small>New website inquiry</small></span><time>2h</time></button><button className="conversation-item"><span className="lead-avatar avatar-coral">DL</span><span><strong>Daniel López</strong><small>Mobile product follow-up</small></span><time>1d</time></button></div><div className="conversation-preview"><div className="conversation-title"><div><strong>Mariana Rojas</strong><span>Northstar Health · AI assistant</span></div><Status value="Qualified" /></div><div className="summary-card"><Bot size={18} /><div><strong>Conversation summary</strong><p>Interested in automating intake and internal document review. Estimated 20–40 users. Requested a discovery call and a preliminary range.</p></div></div><div className="conversation-next"><CheckCircle2 size={17} /><div><strong>Recommended next action</strong><span>Reply with scheduling options and confirm the systems that require integration.</span></div></div><button className="button button-primary">Open conversation <ArrowUpRight size={14} /></button></div></div>}
 
-    {active === 'Account registry' && <><div className="registry-warning"><Database size={18} /><div><strong>Connections are not live yet</strong><span>Use OAuth or environment secrets during implementation. Passwords and tokens must never be saved in ordinary CRM records.</span></div></div><div className="connection-grid">{connections.map(item => <article className="connection-card" key={item.name}><span className="connection-icon"><item.icon size={18} /></span><div><h3>{item.name}</h3><p>{item.owner}</p></div><Status value={item.status} /><small>{item.detail}</small><button>Configure <ArrowUpRight size={13} /></button></article>)}</div></>}
+    {active === 'Account registry' && <><div className="registry-warning"><Database size={18} /><div><strong>{text('Connections are not live yet', 'Las conexiones aún no están activas')}</strong><span>{text('Use OAuth or environment secrets during implementation. Passwords and tokens must never be saved in ordinary CRM records.', 'Usa OAuth o secretos de entorno durante la implementación. Las contraseñas y tokens nunca deben guardarse en registros normales del CRM.')}</span></div></div><div className="connection-grid">{connections.map(item => <article className="connection-card" key={item.name}><span className="connection-icon"><item.icon size={18} /></span><div><h3>{item.name}</h3><p>{item.owner}</p></div><Status value={item.status} /><small>{item.detail}</small><button>{text('Configure', 'Configurar')} <ArrowUpRight size={13} /></button></article>)}</div></>}
 
-    {showLeadForm && <div className="modal-backdrop" role="presentation" onMouseDown={() => setShowLeadForm(false)}><form className="lead-modal" onMouseDown={event => event.stopPropagation()} onSubmit={event => { event.preventDefault(); setSaved(true); setTimeout(() => { setSaved(false); setShowLeadForm(false); }, 900); }}><div className="modal-head"><div><span>New opportunity</span><h3>Add a lead</h3></div><button type="button" aria-label="Close form" onClick={() => setShowLeadForm(false)}><X size={18} /></button></div><label>Name<input required placeholder="Contact name" /></label><label>Company<input placeholder="Company or organization" /></label><div className="form-row"><label>Email<input required type="email" placeholder="name@company.com" /></label><label>Estimated value<input placeholder="$5k–$10k" /></label></div><label>Service<select defaultValue="AI integration"><option>AI integration</option><option>Custom software</option><option>Web application</option><option>Mobile application</option><option>Game development</option></select></label><button className="button button-primary" type="submit">{saved ? <><CheckCircle2 size={15} /> Saved locally</> : <><Plus size={15} /> Create lead</>}</button></form></div>}
+    {showLeadForm && <div className="modal-backdrop" role="presentation" onMouseDown={() => setShowLeadForm(false)}><form className="lead-modal" onMouseDown={event => event.stopPropagation()} onSubmit={event => { event.preventDefault(); setSaved(true); setTimeout(() => { setSaved(false); setShowLeadForm(false); }, 900); }}><div className="modal-head"><div><span>{text('New opportunity', 'Nueva oportunidad')}</span><h3>{text('Add a lead', 'Añadir prospecto')}</h3></div><button type="button" aria-label={text('Close form', 'Cerrar formulario')} onClick={() => setShowLeadForm(false)}><X size={18} /></button></div><label>{text('Name', 'Nombre')}<input required placeholder={text('Contact name', 'Nombre del contacto')} /></label><label>{text('Company', 'Empresa')}<input placeholder={text('Company or organization', 'Empresa u organización')} /></label><div className="form-row"><label>Email<input required type="email" placeholder="name@company.com" /></label><label>{text('Estimated value', 'Valor estimado')}<input placeholder="$5k–$10k" /></label></div><label>{text('Service', 'Servicio')}<select defaultValue="AI integration"><option>AI integration</option><option>Custom software</option><option>Web application</option><option>Mobile application</option><option>Game development</option></select></label><button className="button button-primary" type="submit">{saved ? <><CheckCircle2 size={15} /> {text('Saved locally', 'Guardado localmente')}</> : <><Plus size={15} /> {text('Create lead', 'Crear prospecto')}</>}</button></form></div>}
   </section>;
 }
 
