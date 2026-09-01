@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Activity, ArrowUpRight, BarChart3, Bell, Bot, BriefcaseBusiness, ChevronDown,
+  Activity, ArrowUpRight, BarChart3, Bell, Bot, BrainCircuit, BriefcaseBusiness, ChevronDown,
   CircleDollarSign, Database, Gauge, Globe2, Inbox, LayoutDashboard,
   Menu, MessageSquare, MoreHorizontal, Plus, Search, Settings2, ShieldCheck,
   Languages, Moon, Smartphone, Sparkles, Sun, Target, Users, X,
@@ -19,7 +19,7 @@ const leads: Lead[] = [
 const nav = [
   { label: 'Overview', icon: LayoutDashboard }, { label: 'Leads & pipeline', icon: Inbox, badge: '12' },
   { label: 'Companies', icon: BriefcaseBusiness }, { label: 'Campaigns', icon: Target },
-  { label: 'Analytics', icon: BarChart3 }, { label: 'Conversations', icon: MessageSquare },
+  { label: 'Analytics', icon: BarChart3 }, { label: 'AI recommendations', icon: BrainCircuit }, { label: 'Conversations', icon: MessageSquare },
   { label: 'Account registry', icon: Database },
 ];
 
@@ -44,7 +44,7 @@ function App() {
   const stats = productStats[product];
   const es = language === 'es';
   const text = (en: string, spanish: string) => es ? spanish : en;
-  const navLabels: Record<string, string> = { Overview: text('Overview', 'Resumen'), 'Leads & pipeline': text('Leads & pipeline', 'Prospectos y embudo'), Companies: text('Companies', 'Empresas'), Campaigns: text('Campaigns', 'Campañas'), Analytics: text('Analytics', 'Analítica'), Conversations: text('Conversations', 'Conversaciones'), 'Account registry': text('Account registry', 'Registro de cuentas') };
+  const navLabels: Record<string, string> = { Overview: text('Overview', 'Resumen'), 'Leads & pipeline': text('Leads & pipeline', 'Prospectos y embudo'), Companies: text('Companies', 'Empresas'), Campaigns: text('Campaigns', 'Campañas'), Analytics: text('Analytics', 'Analítica'), 'AI recommendations': text('AI recommendations', 'Recomendaciones IA'), Conversations: text('Conversations', 'Conversaciones'), 'Account registry': text('Account registry', 'Registro de cuentas') };
   const productLabels: Record<string, string> = { 'All products': text('All products', 'Todos los productos'), 'ClubGamerZone website': text('ClubGamerZone website', 'Sitio ClubGamerZone'), Organify: 'Organify', 'CV Enhancer': text('CV Enhancer', 'Optimizador de CV'), 'Games portfolio': text('Games portfolio', 'Portafolio de juegos') };
 
   useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem('signaldesk-theme', theme); }, [theme]);
