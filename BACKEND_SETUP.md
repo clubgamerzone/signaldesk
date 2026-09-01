@@ -6,15 +6,17 @@ The repository contains the production foundation for authentication, workspace 
 
 - September 1, 2026: created the dedicated `signaldesk-crm` Supabase project in the South America (São Paulo) region.
 - September 1, 2026: applied `supabase/migrations/202609010001_initial_crm.sql` successfully through the Supabase SQL Editor.
-- Authentication users: none at the time of migration. The first owner invitation is the next step.
+- September 1, 2026: sent the Supabase invitation to `josel.demoya@gmail.com`; Supabase currently shows `Waiting for verification`.
+- September 1, 2026: created the `ClubGamerZone` workspace (`clubgamerzone`) and assigned the invited user the `owner` role. A verification query returned one matching user, one workspace and one owner membership.
+- Next manual step: accept the Supabase invitation email and create the account password. Do not store that password in this repository.
 
 ## 1. Supabase
 
-1. Create a dedicated Supabase project for SignalDesk.
-2. Run `supabase/migrations/202609010001_initial_crm.sql` in the SQL editor or Supabase CLI.
-3. Create the initial user through Supabase Authentication.
-4. Insert a `workspaces` row and a matching `workspace_members` row with that user's UUID and the `owner` role.
-5. Add the Supabase URL and keys from `.env.example` to local `.env` and Netlify environment variables.
+1. The dedicated Supabase project and initial migration are complete.
+2. The first user invitation and `owner` membership are complete.
+3. Accept the invitation sent to `josel.demoya@gmail.com` and create the account password.
+4. Add the Supabase URL and publishable key from `.env.example` to local `.env` and Netlify environment variables.
+5. Sign in locally and verify that the user can access only the `ClubGamerZone` workspace.
 
 The browser receives only the anonymous key. The service-role key is server-only. Row-level security uses `workspace_members` to isolate every record.
 

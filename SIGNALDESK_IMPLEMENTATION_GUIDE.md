@@ -14,7 +14,8 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - AI recommendations include evidence, confidence and human-approval guardrails.
 - The dedicated Supabase project is named `signaldesk-crm`.
 - The production database migration was applied successfully on September 1, 2026.
-- Supabase Authentication currently has no SignalDesk users. Creating the owner user is the next activation step.
+- The invitation for `josel.demoya@gmail.com` was sent on September 1, 2026 and is waiting for email verification.
+- The invited user is already assigned as `owner` of the `ClubGamerZone` workspace. Database verification returned exactly one matching user, workspace and owner membership.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 
 ## Where everything is
@@ -76,16 +77,15 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 
 ## Activation sequence
 
-1. Create the first Supabase Auth user.
-2. Insert the ClubGamerZone workspace and assign that user the `owner` role.
-3. Add the project URL and publishable key to local and Netlify configuration.
-4. Test sign-in and confirm workspace isolation.
-5. Connect GA4 in read-only mode.
-6. Connect Google Ads in read-only mode.
-7. Connect AdMob reporting.
-8. Add the OpenAI server key and model.
-9. Replace representative dashboard values with normalized live snapshots.
-10. Deploy and verify the dedicated Netlify site.
+1. Accept the Supabase invitation sent to `josel.demoya@gmail.com` and create the account password.
+2. Add the project URL and publishable key to local and Netlify configuration.
+3. Test sign-in and confirm workspace isolation.
+4. Connect GA4 in read-only mode.
+5. Connect Google Ads in read-only mode.
+6. Connect AdMob reporting.
+7. Add the OpenAI server key and model.
+8. Replace representative dashboard values with normalized live snapshots.
+9. Deploy and verify the dedicated Netlify site.
 
 ## Local development
 
