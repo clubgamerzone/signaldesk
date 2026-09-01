@@ -14,8 +14,9 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - AI recommendations include evidence, confidence and human-approval guardrails.
 - The dedicated Supabase project is named `signaldesk-crm`.
 - The production database migration was applied successfully on September 1, 2026.
-- The invitation for `josel.demoya@gmail.com` was sent on September 1, 2026 and is waiting for email verification.
+- The Supabase user `josel.demoya@gmail.com` is confirmed and assigned as the workspace owner.
 - The invited user is already assigned as `owner` of the `ClubGamerZone` workspace. Database verification returned exactly one matching user, workspace and owner membership.
+- The local Supabase browser configuration is active, the allowed local callbacks use port `5175`, and a fresh password-recovery email was sent after correcting the original `localhost:3000` callback.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 
 ## Where everything is
@@ -24,7 +25,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 
 - `src/App.tsx`: global dashboard, navigation, product/date scopes, language and theme.
 - `src/WorkspaceModule.tsx`: leads, companies, campaigns, analytics, AI recommendations, conversations and connections.
-- `src/AuthGate.tsx`: Supabase email/password sign-in gate.
+- `src/AuthGate.tsx`: Supabase email/password sign-in gate plus the secure password-setup screen used by recovery links.
 - `src/lib/supabase.ts`: browser-safe Supabase client initialization.
 - `src/styles.css`: responsive layout, themes, login and module styling.
 
@@ -77,9 +78,9 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 
 ## Activation sequence
 
-1. Accept the Supabase invitation sent to `josel.demoya@gmail.com` and create the account password.
-2. Add the project URL and publishable key to local and Netlify configuration.
-3. Test sign-in and confirm workspace isolation.
+1. Open the newest Supabase password-recovery email and create the account password on the local SignalDesk screen.
+2. Test sign-in and confirm workspace isolation.
+3. Add the project URL and publishable key to Netlify configuration before deployment.
 4. Connect GA4 in read-only mode.
 5. Connect Google Ads in read-only mode.
 6. Connect AdMob reporting.

@@ -8,14 +8,16 @@ The repository contains the production foundation for authentication, workspace 
 - September 1, 2026: applied `supabase/migrations/202609010001_initial_crm.sql` successfully through the Supabase SQL Editor.
 - September 1, 2026: sent the Supabase invitation to `josel.demoya@gmail.com`; Supabase currently shows `Waiting for verification`.
 - September 1, 2026: created the `ClubGamerZone` workspace (`clubgamerzone`) and assigned the invited user the `owner` role. A verification query returned one matching user, one workspace and one owner membership.
-- Next manual step: accept the Supabase invitation email and create the account password. Do not store that password in this repository.
+- September 1, 2026: the invitation confirmed the user, but its original callback used the incorrect default `http://localhost:3000` and displayed an expired-token error after confirmation.
+- September 1, 2026: changed the Auth Site URL to `http://127.0.0.1:5175`, allowed `http://127.0.0.1:5175/**` and `http://localhost:5175/**`, created the browser-safe `signaldesk_web` publishable key and sent a fresh password-recovery email.
+- Next manual step: open the newest Supabase recovery email and choose a password on SignalDesk's password-setup screen. Do not store that password in this repository.
 
 ## 1. Supabase
 
 1. The dedicated Supabase project and initial migration are complete.
 2. The first user invitation and `owner` membership are complete.
-3. Accept the invitation sent to `josel.demoya@gmail.com` and create the account password.
-4. Add the Supabase URL and publishable key from `.env.example` to local `.env` and Netlify environment variables.
+3. The local `.env` contains the project URL and browser-safe publishable key and remains excluded from Git.
+4. Open the newest password-recovery email and create the account password.
 5. Sign in locally and verify that the user can access only the `ClubGamerZone` workspace.
 
 The browser receives only the anonymous key. The service-role key is server-only. Row-level security uses `workspace_members` to isolate every record.
