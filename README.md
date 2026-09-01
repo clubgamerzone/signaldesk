@@ -4,7 +4,14 @@ Standalone CRM and marketing operations dashboard for ClubGamerZone, designed to
 
 ## Current milestone
 
-This first slice is a polished, responsive dashboard shell using representative demo data. It does **not** currently read live metrics from clubgamerzone.com, Google Analytics, Firebase, Meta or advertising accounts. It demonstrates the product direction: workspace switching, navigation, pipeline, lead activity, funnel reporting and an account/integration registry. Data persistence, authentication and external account connections will be added in later milestones rather than being presented as connected when they are not.
+This first slice is a polished, responsive dashboard shell using clearly labelled representative demo data. It does **not** currently read live metrics from clubgamerzone.com, Google Analytics, Firebase, Meta or advertising accounts. The reporting-scope selector now switches between the workspace and its products (website, Organify, CV Enhancer and Games portfolio), with product-specific placeholder metrics. This keeps the product model honest while the connection layer is built.
+
+## Current implementation notes
+
+- `src/App.tsx` contains the initial workspace shell, navigation, product scope selector and demo metric map (`productStats`).
+- `src/styles.css` contains the responsive layout plus the demo-workspace banner and scope selector styles.
+- The **Account registry** is currently a visual connection-health mock. Replace its statuses only after OAuth/API credentials are configured through environment secrets.
+- Live ingestion still requires authenticated connections for GA4, Netlify, Firebase, Meta/Google Ads and the website/app event SDKs. Do not paste tokens into source files or CRM records.
 
 ## Product direction
 
