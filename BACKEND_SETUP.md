@@ -2,6 +2,12 @@
 
 The repository contains the production foundation for authentication, workspace isolation, read-only Google reporting and AI recommendations. It remains in demo mode when environment variables are absent.
 
+## Deployment log
+
+- September 1, 2026: created the dedicated `signaldesk-crm` Supabase project in the South America (São Paulo) region.
+- September 1, 2026: applied `supabase/migrations/202609010001_initial_crm.sql` successfully through the Supabase SQL Editor.
+- Authentication users: none at the time of migration. The first owner invitation is the next step.
+
 ## 1. Supabase
 
 1. Create a dedicated Supabase project for SignalDesk.
