@@ -18,6 +18,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - The invited user is already assigned as `owner` of the `ClubGamerZone` workspace. Database verification returned exactly one matching user, workspace and owner membership.
 - The local Supabase browser configuration is active, the allowed local callbacks use port `5175`, and a fresh password-recovery email was sent after correcting the original `localhost:3000` callback.
 - The source repository is `https://github.com/clubgamerzone/signaldesk`; branch `main` is pushed and ready to import into Netlify.
+- Production is live at `https://signaldeskcrm.netlify.app` with Supabase authentication enabled. Netlify has the two public Supabase build variables and the production callback is registered in Supabase.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 
 ## Where everything is
@@ -92,6 +93,7 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 ## GitHub and Netlify deployment
 
 - GitHub repository: `https://github.com/clubgamerzone/signaldesk`
+- Production site: `https://signaldeskcrm.netlify.app`
 - Production branch: `main`
 - Netlify build command: `npm run build`
 - Netlify publish directory: `dist`

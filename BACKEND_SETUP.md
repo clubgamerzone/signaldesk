@@ -11,7 +11,9 @@ The repository contains the production foundation for authentication, workspace 
 - September 1, 2026: the invitation confirmed the user, but its original callback used the incorrect default `http://localhost:3000` and displayed an expired-token error after confirmation.
 - September 1, 2026: changed the Auth Site URL to `http://127.0.0.1:5175`, allowed `http://127.0.0.1:5175/**` and `http://localhost:5175/**`, created the browser-safe `signaldesk_web` publishable key and sent a fresh password-recovery email.
 - September 1, 2026: connected the local repository to `https://github.com/clubgamerzone/signaldesk` and pushed the complete `main` history. Local `origin/main` now tracks the GitHub branch.
-- Next manual step: open the newest Supabase recovery email and choose a password on SignalDesk's password-setup screen. Do not store that password in this repository.
+- September 1, 2026: deployed production at `https://signaldeskcrm.netlify.app`, changed the Supabase Auth Site URL to that address and added `https://signaldeskcrm.netlify.app/**` to the redirect allowlist while retaining both local development callbacks.
+- September 1, 2026: configured `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Netlify, rebuilt successfully and verified that production shows the real Supabase sign-in screen. Three Netlify Functions were deployed.
+- Next manual step: sign in at `https://signaldeskcrm.netlify.app` with the owner email and the password created through the recovery flow, then verify workspace access. Do not store that password in this repository.
 
 ## 1. Supabase
 
