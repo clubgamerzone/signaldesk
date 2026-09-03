@@ -5,6 +5,7 @@ import {
   MoreHorizontal, Plus, Search, Target, X,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { useConnectorStatus } from './hooks/useConnectorStatus';
 import { type LeadDraft, type LeadStage, useWorkspaceLeads } from './hooks/useWorkspaceLeads';
 import ProductCatalog from './ProductCatalog';
 import UserGuide from './UserGuide';
@@ -45,13 +46,13 @@ const campaigns = [
 ];
 
 const connections = [
-  { name: 'Google Analytics 4', owner: 'ClubGamerZone website', icon: BarChart3, status: 'Not connected', detail: 'Visits, acquisition and conversions' },
-  { name: 'Netlify', owner: 'ClubGamerZone website', icon: Globe2, status: 'Needs token', detail: 'Deployments, forms and serverless events' },
-  { name: 'Meta Business', owner: 'Marketing workspace', icon: Target, status: 'Not connected', detail: 'Campaigns, spend and lead attribution' },
-  { name: 'Google Ads', owner: 'Marketing workspace', icon: CircleDollarSign, status: 'Not connected', detail: 'Search campaigns and conversion costs' },
-  { name: 'Google AdMob', owner: 'Apps & games portfolio', icon: Smartphone, status: 'Not connected', detail: 'Ad revenue, impressions, eCPM and fill rate' },
-  { name: 'Firebase', owner: 'Organify / apps', icon: Database, status: 'Not connected', detail: 'App events and audience activity' },
-  { name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, status: 'Endpoint pending', detail: 'Qualified conversations and summaries' },
+  { provider: 'ga4', name: 'Google Analytics 4', owner: 'ClubGamerZone website', icon: BarChart3, detail: 'Visits, acquisition and conversions' },
+  { provider: 'netlify', name: 'Netlify', owner: 'ClubGamerZone website', icon: Globe2, detail: 'Deployments, forms and serverless events' },
+  { provider: 'meta', name: 'Meta Business', owner: 'Marketing workspace', icon: Target, detail: 'Campaigns, spend and lead attribution' },
+  { provider: 'google_ads', name: 'Google Ads', owner: 'Marketing workspace', icon: CircleDollarSign, detail: 'Search campaigns and conversion costs' },
+  { provider: 'admob', name: 'Google AdMob', owner: 'Apps & games portfolio', icon: Smartphone, detail: 'Ad revenue, impressions, eCPM and fill rate' },
+  { provider: 'firebase', name: 'Firebase', owner: 'Organify / apps', icon: Database, detail: 'App events and audience activity' },
+  { provider: 'openai', name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, detail: 'Qualified conversations and summaries' },
 ];
 
 export default function WorkspaceModule({ active, product, productKey, language, openLeadFormSignal = 0, onNavigate }: ModuleProps) {
@@ -65,9 +66,12 @@ export default function WorkspaceModule({ active, product, productKey, language,
   const [aiError, setAiError] = useState('');
   const [generatedInsights, setGeneratedInsights] = useState<GeneratedInsight[]>([]);
   const { records: liveLeads, mode: leadMode, error: leadLoadError, createLead, updateStage, reload, selectedProductIsConfigured } = useWorkspaceLeads(productKey);
+  const { connectors, mode: connectorMode, error: connectorError, reload: reloadConnectors } = useConnectorStatus(active === 'Account registry');
   useEffect(() => { if (openLeadFormSignal > 0) setShowLeadForm(true); }, [openLeadFormSignal]);
   const es = language === 'es';
   const text = (en: string, spanish: string) => es ? spanish : en;
+  const connectorByProvider = new Map(connectors.map(item => [item.provider, item]));
+  const connectorStatusLabel = (provider: string) => connectorMode === 'loading' ? text('Checking', 'Comprobando') : connectorMode === 'error' ? text('Unavailable', 'No disponible') : connectorByProvider.get(provider)?.configured ? text('Configured', 'Configurado') : text('Needs setup', 'Requiere configuración');
   const stageLabel = (stage: LeadStage) => ({ new_inquiry: text('New inquiry', 'Nueva consulta'), discovery: text('Discovery', 'Descubrimiento'), qualified: text('Qualified', 'Calificado'), proposal: text('Proposal', 'Propuesta'), won: text('Won', 'Ganado'), lost: text('Lost', 'Perdido') })[stage];
   const opportunities: Opportunity[] = leadMode === 'demo' ? demoOpportunities : liveLeads.map(item => ({ id: item.id, name: item.name, email: item.email, company: item.company || text('Independent', 'Independiente'), service: item.service || '—', stage: stageLabel(item.stage), stageKey: item.stage, value: formatLeadValue(item.estimated_value_min, item.estimated_value_max), source: item.source || text('Unknown', 'Sin fuente') }));
   const filteredOpportunities = useMemo(() => opportunities.filter(item =>
@@ -159,7 +163,7 @@ export default function WorkspaceModule({ active, product, productKey, language,
 
     {active === 'Products & goals' && <ProductCatalog language={language} />}
 
-    {active === 'Account registry' && <><div className="registry-warning"><Database size={18} /><div><strong>{text('Connections are not live yet', 'Las conexiones aún no están activas')}</strong><span>{text('Use OAuth or environment secrets during implementation. Passwords and tokens must never be saved in ordinary CRM records.', 'Usa OAuth o secretos de entorno durante la implementación. Las contraseñas y tokens nunca deben guardarse en registros normales del CRM.')}</span></div></div><div className="connection-grid">{connections.map(item => <article className="connection-card" key={item.name}><span className="connection-icon"><item.icon size={18} /></span><div><h3>{item.name}</h3><p>{item.owner}</p></div><Status value={item.status} /><small>{item.detail}</small><button>{text('Configure', 'Configurar')} <ArrowUpRight size={13} /></button></article>)}</div></>}
+    {active === 'Account registry' && <><div className={`crm-source-banner source-${connectorMode}`}><span>{connectorMode === 'loading' ? <LoaderCircle className="spin" size={16} /> : <Database size={16} />}</span><div><strong>{connectorMode === 'live' ? text('Server configuration checked', 'Configuración del servidor comprobada') : connectorMode === 'loading' ? text('Checking server configuration…', 'Comprobando configuración del servidor…') : text('Configuration status unavailable', 'Estado de configuración no disponible')}</strong><small>{connectorMode === 'live' ? text('Configured means the required environment variables exist; it does not guarantee that an external OAuth token is still valid.', 'Configurado significa que existen las variables de entorno requeridas; no garantiza que un token OAuth externo siga vigente.') : connectorError}</small></div>{connectorMode === 'error' && <button onClick={() => void reloadConnectors()}><RefreshCw size={13} /> {text('Retry', 'Reintentar')}</button>}</div><div className="registry-warning"><Database size={18} /><div><strong>{text('Secrets stay outside CRM records', 'Los secretos permanecen fuera del CRM')}</strong><span>{text('Use OAuth or protected environment secrets. Passwords and tokens must never be saved in ordinary CRM records.', 'Usa OAuth o secretos de entorno protegidos. Las contraseñas y tokens nunca deben guardarse en registros normales del CRM.')}</span></div></div><div className="connection-grid">{connections.map(item => <article className="connection-card" key={item.name}><span className="connection-icon"><item.icon size={18} /></span><div><h3>{item.name}</h3><p>{item.owner}</p></div><Status value={connectorStatusLabel(item.provider)} /><small>{item.detail}</small><button>{text('View setup guide', 'Ver guía de configuración')} <ArrowUpRight size={13} /></button></article>)}</div></>}
 
     {active === 'Guide & onboarding' && <UserGuide language={language} onNavigate={onNavigate} />}
 

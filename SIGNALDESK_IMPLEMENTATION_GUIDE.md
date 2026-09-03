@@ -23,6 +23,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - The Leads & pipeline module now loads real records from Supabase, creates persistent leads and saves stage changes. It uses representative records only when Supabase is not configured and labels that mode clearly.
 - The Products & goals module reads the live workspace catalog and permits owners/admins to create or rename reporting scopes. The product-catalog migration was applied and verified on September 3, 2026.
 - The Overview now calculates opportunity count, estimated open-pipeline value, qualified progression, won count, stage funnel and recent inquiries from Supabase. Product and date selectors filter those queries; zero means no matching real records rather than missing demo data.
+- The Account registry now calls the authenticated `connectors-status` function and reports configuration readiness for seven providers without exposing secret values.
 - A bilingual Guide & onboarding module and `docs/USER_GUIDE.md` explain the SaaS purpose, daily workflow, modules, roles, data-status indicators, safety rules and product roadmap.
 
 ## Where everything is
@@ -39,6 +40,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - `src/UserGuide.tsx`: bilingual in-app onboarding and module guidance.
 - `src/OverviewDashboard.tsx`: live CRM summary, funnel, recent activity, pipeline snapshot and connector boundaries.
 - `src/hooks/useWorkspaceOverview.ts`: workspace-authorized overview query with product and date filtering.
+- `src/hooks/useConnectorStatus.ts`: authenticated connector-readiness request used by the Account registry.
 - `src/styles.css`: responsive layout, themes, login and module styling.
 
 ### Database
@@ -60,7 +62,7 @@ Every business table contains `workspace_id`. Row-level security checks `workspa
 
 ### Server functions
 
-- `netlify/functions/connectors-status.ts`: reports whether required server variables exist.
+- `netlify/functions/connectors-status.ts`: reports which required server variables exist for GA4, Google Ads, AdMob, Meta, Firebase, Netlify and OpenAI. It returns variable names that are missing, never their values.
 - `netlify/functions/sync-google-reporting.ts`: retrieves read-only GA4, Google Ads and AdMob reports.
 - `netlify/functions/ai-recommendations.ts`: validates the signed-in workspace member and requests structured recommendations.
 - `netlify/functions/_shared/auth.ts`: verifies Supabase sessions and workspace membership for server requests.
@@ -75,6 +77,8 @@ Every business table contains `workspace_id`. Row-level security checks `workspa
 5. Google reporting is read-only; SignalDesk does not edit campaigns or budgets.
 6. AI recommendations require human approval and cannot directly publish or spend money.
 7. OAuth tokens and API keys belong only in Netlify environment variables.
+
+The Account registry's **Configured** state means all required environment variables are present. It is deliberately not called **Connected**, because an OAuth token can expire or be revoked after configuration. Connector sync results will provide the later health check.
 
 Never put passwords, refresh tokens, secret keys or the OpenAI API key into source code, Git, ordinary CRM records, screenshots or chat messages.
 

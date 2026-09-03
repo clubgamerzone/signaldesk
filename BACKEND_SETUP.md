@@ -17,6 +17,7 @@ The repository contains the production foundation for authentication, workspace 
 - September 3, 2026: connected the Leads & pipeline interface to the existing `public.leads`, `workspace_members` and `products` tables. Lead creation and stage changes now persist through Supabase and remain protected by workspace row-level security.
 - September 3, 2026: added and applied `202609030001_product_catalog.sql`, the Products & goals interface and bilingual user onboarding. Verification returned the four intended ClubGamerZone products and exactly three product policies: member read access plus owner/admin insert and update access.
 - September 3, 2026: replaced the representative Overview CRM values with Supabase-backed opportunity totals, pipeline estimates, stage counts and recent inquiries. Reporting scope and date range now filter the live lead query; traffic and advertising figures remain pending their external connectors.
+- September 3, 2026: connected the Account registry to the authenticated `connectors-status` Netlify Function. It checks environment-variable presence for GA4, Google Ads, AdMob, Meta, Firebase, Netlify and OpenAI without returning any secret value.
 
 ## 1. Supabase
 
@@ -42,6 +43,8 @@ Required identifiers:
 - Google Ads developer token and customer ID
 - Optional Google Ads manager/login customer ID
 - AdMob publisher account ID in the `accounts/pub-...` format expected by the API
+
+The Account registry also recognizes the Meta, Firebase and Netlify variables listed in `.env.example`. Add production values only through Netlify environment configuration; never commit them to `.env.example` or source control.
 
 `netlify/functions/sync-google-reporting.ts` refreshes the Google access token server-side and reads the last 30 days from the configured services. It does not edit campaigns, bids, budgets or ad units.
 

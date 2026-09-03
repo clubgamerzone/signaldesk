@@ -13,7 +13,7 @@ SignalDesk now reads its product catalog, leads, pipeline totals, stage funnel a
 - `src/hooks/useWorkspaceOverview.ts` applies product and date filters when loading the live overview.
 - `src/WorkspaceModule.tsx` contains the usable frontend modules for leads, companies, campaigns, analytics, conversations and the account registry. It also owns the local lead-entry dialog and module search behavior.
 - `src/styles.css` contains the responsive layout plus the demo-workspace banner and scope selector styles.
-- The **Account registry** is currently a visual connection-health mock. Replace its statuses only after OAuth/API credentials are configured through environment secrets.
+- The **Account registry** queries the authenticated server-status endpoint and reports whether each connector's required environment variables exist. This is configuration readiness, not proof that an external OAuth token is valid.
 - Live ingestion still requires authenticated connections for GA4, Netlify, Firebase, Meta/Google Ads and the website/app event SDKs. Do not paste tokens into source files or CRM records.
 
 ## Implemented frontend behavior
@@ -26,6 +26,7 @@ SignalDesk now reads its product catalog, leads, pipeline totals, stage funnel a
 - Owner/admin product catalog for separating websites, applications, games and SaaS offerings.
 - Bilingual in-app Guide & onboarding center covering goals, daily workflow, modules and data safety.
 - Honest pending states for every external integration.
+- Authenticated configuration-readiness checks for GA4, Google Ads, AdMob, Meta, Firebase, Netlify and OpenAI.
 - Separate Google Ads acquisition reporting (spend, clicks, conversions and qualified-lead cost) from Google AdMob monetization reporting (revenue, impressions, eCPM and fill rate).
 - AI recommendations workspace with evidence, confidence, a proposed action and an explicit human-approval guardrail. Its current cards are representative until the analytics connectors and server-side AI endpoint are live.
 - Persistent light/dark theme stored in browser preferences.

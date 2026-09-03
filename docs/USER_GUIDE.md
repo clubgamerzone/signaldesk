@@ -53,6 +53,8 @@ Solo propietarios y administradores pueden crear o renombrar productos. La elimi
 - A demo banner means the values are examples and must not be used for business decisions.
 - An unavailable banner means a connection, session or permission failed; retry and contact an administrator if it continues.
 
+In **Account registry / Registro de cuentas**, **Configured / Configurado** means the server has all required environment settings. It does not guarantee that Google, Meta or another provider currently accepts the credentials. A future successful sync will be the authoritative connection-health signal.
+
 ## Roles / Roles
 
 - `Owner / Propietario`: controls the workspace, product catalog, members and integrations.
