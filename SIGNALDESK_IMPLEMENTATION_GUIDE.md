@@ -21,7 +21,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - Production is live at `https://signaldeskcrm.netlify.app` with Supabase authentication enabled. Netlify has the two public Supabase build variables and the production callback is registered in Supabase.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 - The Leads & pipeline module now loads real records from Supabase, creates persistent leads and saves stage changes. It uses representative records only when Supabase is not configured and labels that mode clearly.
-- The Products & goals module reads the workspace catalog and permits owners/admins to create or rename reporting scopes after the product-catalog migration is applied.
+- The Products & goals module reads the live workspace catalog and permits owners/admins to create or rename reporting scopes. The product-catalog migration was applied and verified on September 3, 2026.
 - A bilingual Guide & onboarding module and `docs/USER_GUIDE.md` explain the SaaS purpose, daily workflow, modules, roles, data-status indicators, safety rules and product roadmap.
 
 ## Where everything is
@@ -99,7 +99,7 @@ Product-specific lead assignment requires matching rows in `public.products`. Un
 
 ## Product catalog workflow
 
-1. Apply `202609030001_product_catalog.sql` after the initial schema.
+1. `202609030001_product_catalog.sql` was applied after the initial schema on September 3, 2026.
 2. The migration adds a `can_manage_workspace` authorization helper and limits product creation/updates to owners and administrators.
 3. It idempotently creates the four ClubGamerZone starter scopes without duplicating matching records.
 4. Members and viewers retain read access through the existing policy.
@@ -107,16 +107,22 @@ Product-specific lead assignment requires matching rows in `public.products`. Un
 
 ## Activation sequence
 
-1. Open the newest Supabase password-recovery email and create the account password on the local SignalDesk screen.
-2. Test sign-in and confirm workspace isolation.
-3. Add the project URL and publishable key to Netlify configuration before deployment.
-4. Connect GA4 in read-only mode.
-5. Connect Google Ads in read-only mode.
-6. Connect AdMob reporting.
-7. Add the OpenAI server key and model.
-8. Create the product registry rows for ClubGamerZone website, Organify, CV Enhancer and the games portfolio.
-9. Replace representative dashboard values with normalized live snapshots.
-10. Deploy and verify the dedicated Netlify site.
+Completed foundation:
+
+1. Supabase authentication, workspace isolation and owner membership are configured.
+2. The project URL and publishable key are configured in Netlify.
+3. The dedicated Netlify site is deployed and its authentication callback is registered.
+4. The product catalog migration is applied and the four initial reporting scopes are live.
+
+Remaining integrations:
+
+1. Connect GA4 in read-only mode.
+2. Connect Google Ads in read-only mode.
+3. Connect AdMob reporting.
+4. Add the OpenAI server key and model.
+5. Ingest ClubGamerZone contact-form and assistant inquiries as leads.
+6. Replace representative dashboard values with normalized live snapshots.
+7. Run an end-to-end production test covering sign-in, lead capture, attribution, reporting and AI recommendations.
 
 ## GitHub and Netlify deployment
 
