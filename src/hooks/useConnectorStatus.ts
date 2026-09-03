@@ -20,6 +20,7 @@ export function useConnectorStatus(enabled: boolean) {
       const membership = await supabase.from('workspace_members').select('workspace_id').limit(1).single();
       if (membership.error || !membership.data?.workspace_id) throw new Error(membership.error?.message || 'No workspace membership was found.');
       const response = await fetch(`/api/connectors-status?workspace_id=${encodeURIComponent(String(membership.data.workspace_id))}`, { headers: { authorization: `Bearer ${session.access_token}` } });
+      if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('NETLIFY_RUNTIME_REQUIRED');
       const data = await response.json() as { connectors?: ConnectorStatus[]; error?: string };
       if (!response.ok || !data.connectors) throw new Error(data.error || 'Connector status could not be loaded.');
       setConnectors(data.connectors);

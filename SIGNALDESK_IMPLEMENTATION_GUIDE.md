@@ -24,6 +24,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - The Products & goals module reads the live workspace catalog and permits owners/admins to create or rename reporting scopes. The product-catalog migration was applied and verified on September 3, 2026.
 - The Overview now calculates opportunity count, estimated open-pipeline value, qualified progression, won count, stage funnel and recent inquiries from Supabase. Product and date selectors filter those queries; zero means no matching real records rather than missing demo data.
 - The Account registry now calls the authenticated `connectors-status` function and reports configuration readiness for seven providers without exposing secret values.
+- Every Account registry card opens a bilingual setup guide with provider-specific steps and environment-variable names; the interface never accepts secret values.
 - A bilingual Guide & onboarding module and `docs/USER_GUIDE.md` explain the SaaS purpose, daily workflow, modules, roles, data-status indicators, safety rules and product roadmap.
 
 ## Where everything is
@@ -79,6 +80,8 @@ Every business table contains `workspace_id`. Row-level security checks `workspa
 7. OAuth tokens and API keys belong only in Netlify environment variables.
 
 The Account registry's **Configured** state means all required environment variables are present. It is deliberately not called **Connected**, because an OAuth token can expire or be revoked after configuration. Connector sync results will provide the later health check.
+
+The setup-guide modal is informational. It names the expected variables from `.env.example`, while actual values must be entered in the protected Netlify environment by an authorized administrator.
 
 Never put passwords, refresh tokens, secret keys or the OpenAI API key into source code, Git, ordinary CRM records, screenshots or chat messages.
 

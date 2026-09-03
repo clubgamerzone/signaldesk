@@ -55,6 +55,8 @@ Solo propietarios y administradores pueden crear o renombrar productos. La elimi
 
 In **Account registry / Registro de cuentas**, **Configured / Configurado** means the server has all required environment settings. It does not guarantee that Google, Meta or another provider currently accepts the credentials. A future successful sync will be the authoritative connection-health signal.
 
+Select **View setup guide / Ver guía de configuración** on any connection card to see its safe activation sequence and required environment-variable names. The guide never requests or displays the secret values themselves.
+
 ## Roles / Roles
 
 - `Owner / Propietario`: controls the workspace, product catalog, members and integrations.
