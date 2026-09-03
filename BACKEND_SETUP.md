@@ -18,7 +18,8 @@ The repository contains the production foundation for authentication, workspace 
 - September 3, 2026: added and applied `202609030001_product_catalog.sql`, the Products & goals interface and bilingual user onboarding. Verification returned the four intended ClubGamerZone products and exactly three product policies: member read access plus owner/admin insert and update access.
 - September 3, 2026: replaced the representative Overview CRM values with Supabase-backed opportunity totals, pipeline estimates, stage counts and recent inquiries. Reporting scope and date range now filter the live lead query; traffic and advertising figures remain pending their external connectors.
 - September 3, 2026: connected the Account registry to the authenticated `connectors-status` Netlify Function. It checks environment-variable presence for GA4, Google Ads, AdMob, Meta, Firebase, Netlify and OpenAI without returning any secret value.
-- September 3, 2026: prepared the protected website-inquiry pipeline. `public-lead-intake` validates forwarded submissions and writes consented project details and UTM attribution to Supabase. Activation requires the details migration, a server-only Supabase service key and the same generated intake token on both Netlify sites.
+- September 3, 2026: activated the protected website-inquiry backend. The `202609030002_lead_intake_details.sql` migration was applied and verified with all eight added columns. Netlify now stores the Supabase URL, server-only Supabase secret and shared intake token for SignalDesk; ClubGamerZone stores the matching intake endpoint and token. No secret value is committed to Git.
+- September 3, 2026: commit `35aada3` was pushed to the ClubGamerZone `main` branch, but Netlify skipped that production deploy because the team exhausted its deploy credits for the billing cycle. The previously published site remains online. The form cannot be tested in production until production deploys resume and Netlify publishes `35aada3` or a later commit.
 
 ## 1. Supabase
 
@@ -68,11 +69,11 @@ Vite alone does not execute Netlify Functions. Use Netlify's local development c
 
 ## 5. Website lead intake
 
-1. Apply `supabase/migrations/202609030002_lead_intake_details.sql` after the product-catalog migration.
-2. In SignalDesk's protected Netlify environment, configure `SUPABASE_SERVICE_ROLE_KEY` and `SIGNALDESK_INTAKE_TOKEN`.
-3. In ClubGamerZone's protected Netlify environment, configure `SIGNALDESK_INTAKE_URL=https://signaldeskcrm.netlify.app/api/public-lead-intake` and the identical `SIGNALDESK_INTAKE_TOKEN`.
+1. `supabase/migrations/202609030002_lead_intake_details.sql` has been applied after the product-catalog migration.
+2. SignalDesk's protected Netlify environment has `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `SIGNALDESK_INTAKE_TOKEN` configured.
+3. ClubGamerZone's protected Netlify environment has `SIGNALDESK_INTAKE_URL=https://signaldeskcrm.netlify.app/api/public-lead-intake` and the identical `SIGNALDESK_INTAKE_TOKEN` configured.
 4. Never expose the service-role key or shared token through a `VITE_` variable.
-5. Submit one consented test inquiry and verify its product, message, contact details and UTM fields in Supabase and SignalDesk.
+5. When Netlify production deploys resume, publish ClubGamerZone commit `35aada3` (or later), submit one consented test inquiry and verify its product, message, contact details and UTM fields in Supabase and SignalDesk.
 
 The browser sends the form only to the ClubGamerZone server function. The shared token is used server-to-server and is never included in the public website bundle.
 
