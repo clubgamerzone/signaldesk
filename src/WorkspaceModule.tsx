@@ -1,20 +1,32 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowUpRight, BadgeDollarSign, BarChart3, Bot, Building2, CheckCircle2,
-  CircleDollarSign, Database, Filter, Globe2, Smartphone,
+  CircleDollarSign, Database, Filter, Globe2, Inbox, LoaderCircle, RefreshCw, Smartphone,
   MoreHorizontal, Plus, Search, Target, X,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { type LeadDraft, type LeadStage, useWorkspaceLeads } from './hooks/useWorkspaceLeads';
 
-type ModuleProps = { active: string; product: string; language: 'en' | 'es'; openLeadFormSignal?: number };
+type ModuleProps = { active: string; product: string; productKey: string; language: 'en' | 'es'; openLeadFormSignal?: number };
 type GeneratedInsight = { title: string; priority: string; confidence: number; evidence: Array<{ metric: string; value: string; comparison: string }>; suggested_action: string; expected_impact: string; risks: string[] };
+type Opportunity = { id?: string; name: string; email?: string | null; company: string; service: string; stage: string; stageKey: LeadStage; value: string; source: string };
 
-const opportunities = [
-  { name: 'Mariana Rojas', company: 'Northstar Health', service: 'AI automation', stage: 'Qualified', value: '$18k–$25k', source: 'AI assistant' },
-  { name: 'Daniel López', company: 'Lumen Foods', service: 'Mobile product', stage: 'Discovery', value: '$12k–$18k', source: 'Referral' },
-  { name: 'Sofia Alvarez', company: 'Independent', service: 'Web platform', stage: 'New inquiry', value: '$8k–$12k', source: 'Website form' },
-  { name: 'James Turner', company: 'Redwood Labs', service: 'Custom software', stage: 'Proposal', value: '$25k+', source: 'LinkedIn' },
+const demoOpportunities: Opportunity[] = [
+  { name: 'Mariana Rojas', company: 'Northstar Health', service: 'AI automation', stage: 'Qualified', stageKey: 'qualified', value: '$18k–$25k', source: 'AI assistant' },
+  { name: 'Daniel López', company: 'Lumen Foods', service: 'Mobile product', stage: 'Discovery', stageKey: 'discovery', value: '$12k–$18k', source: 'Referral' },
+  { name: 'Sofia Alvarez', company: 'Independent', service: 'Web platform', stage: 'New inquiry', stageKey: 'new_inquiry', value: '$8k–$12k', source: 'Website form' },
+  { name: 'James Turner', company: 'Redwood Labs', service: 'Custom software', stage: 'Proposal', stageKey: 'proposal', value: '$25k+', source: 'LinkedIn' },
 ];
+
+const stageOrder: LeadStage[] = ['new_inquiry', 'discovery', 'qualified', 'proposal', 'won', 'lost'];
+
+function formatLeadValue(minimum: number | null, maximum: number | null) {
+  const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0, notation: value >= 1000 ? 'compact' : 'standard' }).format(value);
+  if (minimum !== null && maximum !== null) return `${money(minimum)}–${money(maximum)}`;
+  if (minimum !== null) return `${money(minimum)}+`;
+  if (maximum !== null) return `Up to ${money(maximum)}`;
+  return '—';
+}
 
 const companies = [
   { name: 'Northstar Health', contact: 'Mariana Rojas', projects: 2, value: '$25k', status: 'Active' },
@@ -40,19 +52,55 @@ const connections = [
   { name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, status: 'Endpoint pending', detail: 'Qualified conversations and summaries' },
 ];
 
-export default function WorkspaceModule({ active, product, language, openLeadFormSignal = 0 }: ModuleProps) {
+export default function WorkspaceModule({ active, product, productKey, language, openLeadFormSignal = 0 }: ModuleProps) {
   const [query, setQuery] = useState('');
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savingLead, setSavingLead] = useState(false);
+  const [leadFormError, setLeadFormError] = useState('');
+  const [leadActionError, setLeadActionError] = useState('');
   const [generating, setGenerating] = useState(false);
   const [aiError, setAiError] = useState('');
   const [generatedInsights, setGeneratedInsights] = useState<GeneratedInsight[]>([]);
+  const { records: liveLeads, mode: leadMode, error: leadLoadError, createLead, updateStage, reload, selectedProductIsConfigured } = useWorkspaceLeads(productKey);
   useEffect(() => { if (openLeadFormSignal > 0) setShowLeadForm(true); }, [openLeadFormSignal]);
-  const filteredOpportunities = useMemo(() => opportunities.filter(item =>
-    `${item.name} ${item.company} ${item.service} ${item.stage}`.toLowerCase().includes(query.toLowerCase())
-  ), [query]);
   const es = language === 'es';
   const text = (en: string, spanish: string) => es ? spanish : en;
+  const stageLabel = (stage: LeadStage) => ({ new_inquiry: text('New inquiry', 'Nueva consulta'), discovery: text('Discovery', 'Descubrimiento'), qualified: text('Qualified', 'Calificado'), proposal: text('Proposal', 'Propuesta'), won: text('Won', 'Ganado'), lost: text('Lost', 'Perdido') })[stage];
+  const opportunities: Opportunity[] = leadMode === 'demo' ? demoOpportunities : liveLeads.map(item => ({ id: item.id, name: item.name, email: item.email, company: item.company || text('Independent', 'Independiente'), service: item.service || '—', stage: stageLabel(item.stage), stageKey: item.stage, value: formatLeadValue(item.estimated_value_min, item.estimated_value_max), source: item.source || text('Unknown', 'Sin fuente') }));
+  const filteredOpportunities = useMemo(() => opportunities.filter(item =>
+    `${item.name} ${item.company} ${item.service} ${item.stage}`.toLowerCase().includes(query.toLowerCase())
+  ), [opportunities, query]);
+
+  const stageCounts = stageOrder.reduce<Record<LeadStage, number>>((counts, stage) => ({ ...counts, [stage]: opportunities.filter(item => item.stageKey === stage).length }), { new_inquiry: 0, discovery: 0, qualified: 0, proposal: 0, won: 0, lost: 0 });
+
+  async function submitLead(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSavingLead(true); setLeadFormError('');
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const numberOrNull = (value: FormDataEntryValue | null) => value && String(value).trim() ? Number(value) : null;
+    const draft: LeadDraft = { name: String(form.get('name') || ''), email: String(form.get('email') || ''), company: String(form.get('company') || ''), service: String(form.get('service') || ''), source: String(form.get('source') || 'Manual entry'), estimatedValueMin: numberOrNull(form.get('estimatedValueMin')), estimatedValueMax: numberOrNull(form.get('estimatedValueMax')) };
+    if (draft.estimatedValueMin !== null && draft.estimatedValueMax !== null && draft.estimatedValueMax < draft.estimatedValueMin) {
+      setLeadFormError(text('Maximum value must be greater than or equal to minimum value.', 'El valor máximo debe ser mayor o igual al valor mínimo.'));
+      setSavingLead(false);
+      return;
+    }
+    try {
+      await createLead(draft);
+      setSaved(true);
+      formElement.reset();
+      setTimeout(() => { setSaved(false); setShowLeadForm(false); }, 900);
+    } catch (error) {
+      setLeadFormError(error instanceof Error ? error.message : text('The lead could not be saved.', 'No se pudo guardar el prospecto.'));
+    } finally { setSavingLead(false); }
+  }
+
+  async function changeStage(id: string, stage: LeadStage) {
+    setLeadActionError('');
+    try { await updateStage(id, stage); }
+    catch (error) { setLeadActionError(error instanceof Error ? error.message : text('The stage could not be updated.', 'No se pudo actualizar la etapa.')); }
+  }
 
   const title = active === 'Leads & pipeline' ? text('Sales pipeline', 'Embudo de ventas') : active === 'Companies' ? text('Companies', 'Empresas') : active === 'Campaigns' ? text('Campaigns', 'Campañas') : active === 'Analytics' ? text('Analytics', 'Analítica') : active === 'AI recommendations' ? text('AI recommendations', 'Recomendaciones IA') : active === 'Conversations' ? text('Conversations', 'Conversaciones') : text('Account registry', 'Registro de cuentas');
   const subtitles: Record<string, string> = {
@@ -88,8 +136,10 @@ export default function WorkspaceModule({ active, product, language, openLeadFor
     </div>
 
     {active === 'Leads & pipeline' && <>
-      <div className="module-kpis"><Kpi label={text('New inquiries', 'Nuevas consultas')} value="12" note={text('4 need a response', '4 necesitan respuesta')} /><Kpi label={text('Qualified', 'Calificados')} value="6" note={text('50% qualification rate', '50% de calificación')} /><Kpi label={text('Proposals', 'Propuestas')} value="4" note={text('$76k potential', '$76k potencial')} /><Kpi label={text('Won', 'Ganados')} value="2" note={text('This month', 'Este mes')} /></div>
-      <div className="data-panel"><div className="data-panel-head"><strong>{text('Active opportunities', 'Oportunidades activas')}</strong><span>{filteredOpportunities.length} {text('records', 'registros')}</span></div><div className="table-scroll"><table><thead><tr><th>{text('Contact', 'Contacto')}</th><th>{text('Service', 'Servicio')}</th><th>{text('Stage', 'Etapa')}</th><th>{text('Value', 'Valor')}</th><th>{text('Source', 'Fuente')}</th><th /></tr></thead><tbody>{filteredOpportunities.map(item => <tr key={item.name}><td><strong>{item.name}</strong><small>{item.company}</small></td><td>{item.service}</td><td><Status value={item.stage} /></td><td>{item.value}</td><td>{item.source}</td><td><button aria-label={`${text('Actions for', 'Acciones para')} ${item.name}`}><MoreHorizontal size={16} /></button></td></tr>)}</tbody></table></div></div>
+      <div className={`crm-source-banner source-${leadMode}`}><span>{leadMode === 'loading' ? <LoaderCircle className="spin" size={16} /> : <Database size={16} />}</span><div><strong>{leadMode === 'live' ? text('Live Supabase pipeline', 'Embudo conectado a Supabase') : leadMode === 'loading' ? text('Loading your CRM records…', 'Cargando tus registros…') : leadMode === 'error' ? text('Live records are temporarily unavailable', 'Los registros no están disponibles temporalmente') : text('Representative demo records', 'Registros demostrativos')}</strong><small>{leadMode === 'live' ? (selectedProductIsConfigured ? text('New leads and stage changes are saved to your private workspace.', 'Los nuevos prospectos y cambios de etapa se guardan en tu espacio privado.') : text('Create this product in the registry before assigning product-specific leads.', 'Crea este producto en el registro antes de asignarle prospectos.')) : leadMode === 'error' ? leadLoadError : text('Connect and sign in to Supabase to persist changes.', 'Conecta e inicia sesión en Supabase para guardar cambios.')}</small></div>{leadMode === 'error' && <button type="button" onClick={() => void reload()}><RefreshCw size={13} /> {text('Retry', 'Reintentar')}</button>}</div>
+      {leadActionError && <div className="auth-error">{leadActionError}</div>}
+      <div className="module-kpis"><Kpi label={text('New inquiries', 'Nuevas consultas')} value={String(stageCounts.new_inquiry)} note={text('Awaiting first review', 'Esperando primera revisión')} /><Kpi label={text('Qualified', 'Calificados')} value={String(stageCounts.qualified)} note={text('Ready for follow-up', 'Listos para seguimiento')} /><Kpi label={text('Proposals', 'Propuestas')} value={String(stageCounts.proposal)} note={text('Commercial conversations', 'Conversaciones comerciales')} /><Kpi label={text('Won', 'Ganados')} value={String(stageCounts.won)} note={text('Closed successfully', 'Cerrados con éxito')} /></div>
+      <div className="data-panel"><div className="data-panel-head"><strong>{text('Active opportunities', 'Oportunidades activas')}</strong><span>{filteredOpportunities.length} {text('records', 'registros')}</span></div><div className="table-scroll"><table><thead><tr><th>{text('Contact', 'Contacto')}</th><th>{text('Service', 'Servicio')}</th><th>{text('Stage', 'Etapa')}</th><th>{text('Value', 'Valor')}</th><th>{text('Source', 'Fuente')}</th><th /></tr></thead><tbody>{filteredOpportunities.map(item => <tr key={item.id ?? item.name}><td><strong>{item.name}</strong><small>{item.company}{item.email ? ` · ${item.email}` : ''}</small></td><td>{item.service}</td><td>{item.id && leadMode === 'live' ? <select className="stage-select" value={item.stageKey} onChange={event => void changeStage(item.id!, event.target.value as LeadStage)} aria-label={`${text('Stage for', 'Etapa de')} ${item.name}`}>{stageOrder.map(stage => <option value={stage} key={stage}>{stageLabel(stage)}</option>)}</select> : <Status value={item.stage} />}</td><td>{item.value}</td><td>{item.source}</td><td><button aria-label={`${text('Actions for', 'Acciones para')} ${item.name}`}><MoreHorizontal size={16} /></button></td></tr>)}</tbody></table>{leadMode === 'live' && filteredOpportunities.length === 0 && <div className="empty-table"><Inbox size={24} /><strong>{text('No leads in this scope yet', 'Aún no hay prospectos en este alcance')}</strong><span>{text('Add the first opportunity or select All products.', 'Añade la primera oportunidad o selecciona Todos los productos.')}</span></div>}</div></div>
     </>}
 
     {active === 'Companies' && <div className="company-grid">{companies.filter(item => `${item.name} ${item.contact}`.toLowerCase().includes(query.toLowerCase())).map(item => <article className="company-card" key={item.name}><div className="company-icon"><Building2 size={18} /></div><Status value={item.status} /><h3>{item.name}</h3><p>{item.contact}</p><div><span><strong>{item.projects}</strong> Projects</span><span><strong>{item.value}</strong> Value</span></div><button>Open account <ArrowUpRight size={13} /></button></article>)}</div>}
@@ -104,7 +154,7 @@ export default function WorkspaceModule({ active, product, language, openLeadFor
 
     {active === 'Account registry' && <><div className="registry-warning"><Database size={18} /><div><strong>{text('Connections are not live yet', 'Las conexiones aún no están activas')}</strong><span>{text('Use OAuth or environment secrets during implementation. Passwords and tokens must never be saved in ordinary CRM records.', 'Usa OAuth o secretos de entorno durante la implementación. Las contraseñas y tokens nunca deben guardarse en registros normales del CRM.')}</span></div></div><div className="connection-grid">{connections.map(item => <article className="connection-card" key={item.name}><span className="connection-icon"><item.icon size={18} /></span><div><h3>{item.name}</h3><p>{item.owner}</p></div><Status value={item.status} /><small>{item.detail}</small><button>{text('Configure', 'Configurar')} <ArrowUpRight size={13} /></button></article>)}</div></>}
 
-    {showLeadForm && <div className="modal-backdrop" role="presentation" onMouseDown={() => setShowLeadForm(false)}><form className="lead-modal" onMouseDown={event => event.stopPropagation()} onSubmit={event => { event.preventDefault(); setSaved(true); setTimeout(() => { setSaved(false); setShowLeadForm(false); }, 900); }}><div className="modal-head"><div><span>{text('New opportunity', 'Nueva oportunidad')}</span><h3>{text('Add a lead', 'Añadir prospecto')}</h3></div><button type="button" aria-label={text('Close form', 'Cerrar formulario')} onClick={() => setShowLeadForm(false)}><X size={18} /></button></div><label>{text('Name', 'Nombre')}<input required placeholder={text('Contact name', 'Nombre del contacto')} /></label><label>{text('Company', 'Empresa')}<input placeholder={text('Company or organization', 'Empresa u organización')} /></label><div className="form-row"><label>Email<input required type="email" placeholder="name@company.com" /></label><label>{text('Estimated value', 'Valor estimado')}<input placeholder="$5k–$10k" /></label></div><label>{text('Service', 'Servicio')}<select defaultValue="AI integration"><option>AI integration</option><option>Custom software</option><option>Web application</option><option>Mobile application</option><option>Game development</option></select></label><button className="button button-primary" type="submit">{saved ? <><CheckCircle2 size={15} /> {text('Saved locally', 'Guardado localmente')}</> : <><Plus size={15} /> {text('Create lead', 'Crear prospecto')}</>}</button></form></div>}
+    {showLeadForm && <div className="modal-backdrop" role="presentation" onMouseDown={() => setShowLeadForm(false)}><form className="lead-modal" onMouseDown={event => event.stopPropagation()} onSubmit={submitLead}><div className="modal-head"><div><span>{text('New opportunity', 'Nueva oportunidad')}</span><h3>{text('Add a lead', 'Añadir prospecto')}</h3></div><button type="button" aria-label={text('Close form', 'Cerrar formulario')} onClick={() => setShowLeadForm(false)}><X size={18} /></button></div><label>{text('Name', 'Nombre')}<input name="name" required placeholder={text('Contact name', 'Nombre del contacto')} /></label><label>{text('Company', 'Empresa')}<input name="company" placeholder={text('Company or organization', 'Empresa u organización')} /></label><div className="form-row"><label>Email<input name="email" required type="email" placeholder="name@company.com" /></label><label>{text('Source', 'Fuente')}<select name="source" defaultValue="Manual entry"><option value="Manual entry">{text('Manual entry', 'Entrada manual')}</option><option value="Website form">{text('Website form', 'Formulario web')}</option><option value="AI assistant">{text('AI assistant', 'Asistente IA')}</option><option value="Referral">{text('Referral', 'Referido')}</option><option value="LinkedIn">LinkedIn</option><option value="Google Ads">Google Ads</option><option value="Meta Ads">Meta Ads</option></select></label></div><div className="form-row"><label>{text('Minimum value (USD)', 'Valor mínimo (USD)')}<input name="estimatedValueMin" min="0" step="1" type="number" placeholder="5000" /></label><label>{text('Maximum value (USD)', 'Valor máximo (USD)')}<input name="estimatedValueMax" min="0" step="1" type="number" placeholder="10000" /></label></div><label>{text('Service', 'Servicio')}<select name="service" defaultValue="AI integration"><option>AI integration</option><option>Custom software</option><option>Web application</option><option>Mobile application</option><option>Game development</option><option>Project leadership</option></select></label>{leadFormError && <div className="auth-error">{leadFormError}</div>}<button className="button button-primary" type="submit" disabled={savingLead || leadMode !== 'live' || !selectedProductIsConfigured}>{saved ? <><CheckCircle2 size={15} /> {text('Saved to CRM', 'Guardado en el CRM')}</> : savingLead ? <><LoaderCircle className="spin" size={15} /> {text('Saving…', 'Guardando…')}</> : <><Plus size={15} /> {text('Create lead', 'Crear prospecto')}</>}</button>{(leadMode !== 'live' || !selectedProductIsConfigured) && <small className="form-help">{!selectedProductIsConfigured ? text('This product is not configured yet. Select All products to save an unassigned lead.', 'Este producto aún no está configurado. Selecciona Todos los productos para guardar un prospecto sin asignar.') : text('Live Supabase access is required to create persistent leads.', 'Se requiere acceso activo a Supabase para crear prospectos persistentes.')}</small>}</form></div>}
   </section>;
 }
 

@@ -20,6 +20,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - The source repository is `https://github.com/clubgamerzone/signaldesk`; branch `main` is pushed and ready to import into Netlify.
 - Production is live at `https://signaldeskcrm.netlify.app` with Supabase authentication enabled. Netlify has the two public Supabase build variables and the production callback is registered in Supabase.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
+- The Leads & pipeline module now loads real records from Supabase, creates persistent leads and saves stage changes. It uses representative records only when Supabase is not configured and labels that mode clearly.
 
 ## Where everything is
 
@@ -29,6 +30,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - `src/WorkspaceModule.tsx`: leads, companies, campaigns, analytics, AI recommendations, conversations and connections.
 - `src/AuthGate.tsx`: Supabase email/password sign-in gate plus the secure password-setup screen used by recovery links.
 - `src/lib/supabase.ts`: browser-safe Supabase client initialization.
+- `src/hooks/useWorkspaceLeads.ts`: workspace membership lookup, product-aware lead loading, persistent creation and optimistic stage updates.
 - `src/styles.css`: responsive layout, themes, login and module styling.
 
 ### Database
@@ -78,6 +80,17 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 7. Jose accepts or rejects each recommendation.
 8. SignalDesk measures the result against the original snapshot.
 
+## Live lead workflow
+
+1. `AuthGate.tsx` confirms the user has a valid Supabase session.
+2. `useWorkspaceLeads.ts` reads the user's first authorized `workspace_members` record; row-level security remains the final authorization boundary.
+3. When the reporting scope names a configured product, the hook resolves its database ID and filters the pipeline by `product_id`. `All products` reads the complete workspace pipeline.
+4. The lead form writes name, email, company, service, source, USD value range, workspace, optional product and creator to `public.leads`.
+5. Every new record starts at `new_inquiry`. The stage selector persists transitions through discovery, qualification, proposal, won or lost.
+6. A failed stage update rolls the interface back to the last confirmed database state and shows an actionable error.
+
+Product-specific lead assignment requires matching rows in `public.products`. Until those rows are created, use `All products`; newly entered records will be safely stored as unassigned rather than linked to an invented product.
+
 ## Activation sequence
 
 1. Open the newest Supabase password-recovery email and create the account password on the local SignalDesk screen.
@@ -87,8 +100,9 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 5. Connect Google Ads in read-only mode.
 6. Connect AdMob reporting.
 7. Add the OpenAI server key and model.
-8. Replace representative dashboard values with normalized live snapshots.
-9. Deploy and verify the dedicated Netlify site.
+8. Create the product registry rows for ClubGamerZone website, Organify, CV Enhancer and the games portfolio.
+9. Replace representative dashboard values with normalized live snapshots.
+10. Deploy and verify the dedicated Netlify site.
 
 ## GitHub and Netlify deployment
 

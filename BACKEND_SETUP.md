@@ -14,6 +14,7 @@ The repository contains the production foundation for authentication, workspace 
 - September 1, 2026: deployed production at `https://signaldeskcrm.netlify.app`, changed the Supabase Auth Site URL to that address and added `https://signaldeskcrm.netlify.app/**` to the redirect allowlist while retaining both local development callbacks.
 - September 1, 2026: configured `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Netlify, rebuilt successfully and verified that production shows the real Supabase sign-in screen. Three Netlify Functions were deployed.
 - Next manual step: sign in at `https://signaldeskcrm.netlify.app` with the owner email and the password created through the recovery flow, then verify workspace access. Do not store that password in this repository.
+- September 3, 2026: connected the Leads & pipeline interface to the existing `public.leads`, `workspace_members` and `products` tables. Lead creation and stage changes now persist through Supabase and remain protected by workspace row-level security.
 
 ## 1. Supabase
 
@@ -24,6 +25,8 @@ The repository contains the production foundation for authentication, workspace 
 5. Sign in locally and verify that the user can access only the `ClubGamerZone` workspace.
 
 The browser receives only the anonymous key. The service-role key is server-only. Row-level security uses `workspace_members` to isolate every record.
+
+The pipeline requires no new database migration. It uses the tables and policies already applied by `202609010001_initial_crm.sql`. Product-specific filtering becomes active as soon as matching product rows exist; unassigned leads remain visible under `All products`.
 
 ## 2. Google reporting
 

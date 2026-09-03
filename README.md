@@ -18,7 +18,7 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 
 - Workspace and individual-product reporting scopes.
 - Selectable date ranges and a consistent responsive dashboard shell.
-- Searchable opportunity table and local add-lead confirmation flow.
+- Supabase-backed opportunity table with persistent lead creation, product scoping and inline pipeline-stage updates.
 - Company, campaign, analytics, conversation and connection-registry views.
 - Honest pending states for every external integration.
 - Separate Google Ads acquisition reporting (spend, clicks, conversions and qualified-lead cost) from Google AdMob monetization reporting (revenue, impressions, eCPM and fill rate).
@@ -26,7 +26,7 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 - Persistent light/dark theme stored in browser preferences.
 - Persistent English/Spanish interface switcher with country flags; navigation, overview metrics, funnel, activity, connection states and primary module controls are translated.
 
-The records and calculations remain representative UI data until the new Supabase and connector configuration is activated. Refreshing the browser resets demo lead-form entries.
+Overview, company, campaign, conversation and analytics values remain representative until their connector or database modules are activated. When Supabase is configured and the user is signed in, the Leads & pipeline module reads and writes real workspace records. Without Supabase, it remains in a clearly labelled read-only demo mode.
 
 ## Product direction
 
