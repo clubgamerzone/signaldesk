@@ -16,6 +16,7 @@ The repository contains the production foundation for authentication, workspace 
 - Next manual step: sign in at `https://signaldeskcrm.netlify.app` with the owner email and the password created through the recovery flow, then verify workspace access. Do not store that password in this repository.
 - September 3, 2026: connected the Leads & pipeline interface to the existing `public.leads`, `workspace_members` and `products` tables. Lead creation and stage changes now persist through Supabase and remain protected by workspace row-level security.
 - September 3, 2026: added and applied `202609030001_product_catalog.sql`, the Products & goals interface and bilingual user onboarding. Verification returned the four intended ClubGamerZone products and exactly three product policies: member read access plus owner/admin insert and update access.
+- September 3, 2026: replaced the representative Overview CRM values with Supabase-backed opportunity totals, pipeline estimates, stage counts and recent inquiries. Reporting scope and date range now filter the live lead query; traffic and advertising figures remain pending their external connectors.
 
 ## 1. Supabase
 

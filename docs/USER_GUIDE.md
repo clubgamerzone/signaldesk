@@ -14,6 +14,10 @@ SignalDesk es un CRM privado y un espacio de operaciones de marketing para equip
 4. Open **Leads & pipeline / Prospectos y embudo** and add the first real inquiry.
 5. Select each product from the reporting-scope menu and verify that its records remain separated.
 
+The Overview uses the selected product and date range. Its opportunity totals, estimated open-pipeline value, stage funnel and recent inquiries are live CRM data. A zero is a valid result: it means Supabase contains no matching leads in that scope and period. Traffic, advertising cost and monetization remain unavailable until their external connections are activated.
+
+El Resumen utiliza el producto y período seleccionados. Los totales de oportunidades, el valor estimado del embudo abierto, las etapas y las consultas recientes son datos reales del CRM. Un cero es válido: significa que Supabase no contiene prospectos coincidentes en ese alcance y período. El tráfico, costo publicitario y monetización permanecerán pendientes hasta activar sus conexiones externas.
+
 Never paste passwords, verification codes, private API keys, service-role keys or OAuth refresh tokens into an ordinary SignalDesk record. Administrators must configure secrets through the protected hosting environment.
 
 Nunca guardes contraseñas, códigos de verificación, llaves API privadas, llaves de servicio ni tokens OAuth dentro de un registro normal. Los administradores deben configurar secretos mediante el entorno protegido del hosting.

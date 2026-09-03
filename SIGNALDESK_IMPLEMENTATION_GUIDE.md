@@ -22,6 +22,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 - The Leads & pipeline module now loads real records from Supabase, creates persistent leads and saves stage changes. It uses representative records only when Supabase is not configured and labels that mode clearly.
 - The Products & goals module reads the live workspace catalog and permits owners/admins to create or rename reporting scopes. The product-catalog migration was applied and verified on September 3, 2026.
+- The Overview now calculates opportunity count, estimated open-pipeline value, qualified progression, won count, stage funnel and recent inquiries from Supabase. Product and date selectors filter those queries; zero means no matching real records rather than missing demo data.
 - A bilingual Guide & onboarding module and `docs/USER_GUIDE.md` explain the SaaS purpose, daily workflow, modules, roles, data-status indicators, safety rules and product roadmap.
 
 ## Where everything is
@@ -36,6 +37,8 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - `src/hooks/useWorkspaceProducts.ts`: product-catalog loading plus owner/admin create and update operations.
 - `src/ProductCatalog.tsx`: catalog cards, product editor and permission/error states.
 - `src/UserGuide.tsx`: bilingual in-app onboarding and module guidance.
+- `src/OverviewDashboard.tsx`: live CRM summary, funnel, recent activity, pipeline snapshot and connector boundaries.
+- `src/hooks/useWorkspaceOverview.ts`: workspace-authorized overview query with product and date filtering.
 - `src/styles.css`: responsive layout, themes, login and module styling.
 
 ### Database
@@ -94,6 +97,15 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 4. The lead form writes name, email, company, service, source, USD value range, workspace, optional product and creator to `public.leads`.
 5. Every new record starts at `new_inquiry`. The stage selector persists transitions through discovery, qualification, proposal, won or lost.
 6. A failed stage update rolls the interface back to the last confirmed database state and shows an actionable error.
+
+## Live overview workflow
+
+1. `useWorkspaceOverview.ts` resolves the signed-in user's authorized workspace through row-level security.
+2. The reporting scope resolves a product name to its database ID; **All products** omits the product filter.
+3. The date selector filters leads by `created_at`. It does not claim that a stage transition happened during that period.
+4. Open-pipeline value uses the midpoint of a lead's minimum and maximum estimate, or the available boundary when only one exists.
+5. Qualified progression counts records at qualified, proposal or won stages divided by all matching records.
+6. Traffic, ad spend and monetization remain pending until GA4, Google Ads and AdMob are connected.
 
 Product-specific lead assignment requires matching rows in `public.products`. Until those rows are created, use `All products`; newly entered records will be safely stored as unassigned rather than linked to an invented product.
 

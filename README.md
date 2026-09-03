@@ -4,11 +4,13 @@ Standalone CRM and marketing operations dashboard for ClubGamerZone, designed to
 
 ## Current milestone
 
-This first slice is a polished, responsive dashboard shell using clearly labelled representative demo data. It does **not** currently read live metrics from clubgamerzone.com, Google Analytics, Firebase, Meta or advertising accounts. The reporting-scope selector now switches between the workspace and its products (website, Organify, CV Enhancer and Games portfolio), with product-specific placeholder metrics. This keeps the product model honest while the connection layer is built.
+SignalDesk now reads its product catalog, leads, pipeline totals, stage funnel and recent inquiries from the private Supabase workspace. It does **not** yet read traffic or advertising metrics from clubgamerzone.com, Google Analytics, Firebase, Meta or advertising accounts. Those surfaces remain clearly labelled as representative or pending until their connectors are configured.
 
 ## Current implementation notes
 
-- `src/App.tsx` contains the initial workspace shell, navigation, product scope selector and demo metric map (`productStats`).
+- `src/App.tsx` contains the workspace shell, navigation and the live product scope selector.
+- `src/OverviewDashboard.tsx` renders the Supabase-backed CRM summary, funnel, recent inquiries and pipeline snapshot.
+- `src/hooks/useWorkspaceOverview.ts` applies product and date filters when loading the live overview.
 - `src/WorkspaceModule.tsx` contains the usable frontend modules for leads, companies, campaigns, analytics, conversations and the account registry. It also owns the local lead-entry dialog and module search behavior.
 - `src/styles.css` contains the responsive layout plus the demo-workspace banner and scope selector styles.
 - The **Account registry** is currently a visual connection-health mock. Replace its statuses only after OAuth/API credentials are configured through environment secrets.
@@ -18,6 +20,7 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 
 - Workspace and individual-product reporting scopes.
 - Selectable date ranges and a consistent responsive dashboard shell.
+- Supabase-backed overview totals, opportunity funnel, recent inquiries and pipeline snapshot.
 - Supabase-backed opportunity table with persistent lead creation, product scoping and inline pipeline-stage updates.
 - Company, campaign, analytics, conversation and connection-registry views.
 - Owner/admin product catalog for separating websites, applications, games and SaaS offerings.
@@ -28,7 +31,7 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 - Persistent light/dark theme stored in browser preferences.
 - Persistent English/Spanish interface switcher with country flags; navigation, overview metrics, funnel, activity, connection states and primary module controls are translated.
 
-Overview, company, campaign, conversation and analytics values remain representative until their connector or database modules are activated. When Supabase is configured and the user is signed in, the Leads & pipeline module reads and writes real workspace records. Without Supabase, it remains in a clearly labelled read-only demo mode.
+Company, campaign, conversation and external analytics values remain representative until their connector or database modules are activated. When Supabase is configured and the user is signed in, the Overview and Leads & pipeline modules read real workspace records. Without Supabase, they remain in a clearly labelled read-only demo mode.
 
 ## Product direction
 
@@ -88,6 +91,6 @@ ClubGamerZone is the first workspace. Its products and properties will be separa
 - Games such as Hell Cemetery, Instruments of Faith and others
 - Future products or client workspaces
 
-Each entity gets its own analytics properties, event dictionary, campaigns and connection records. The dashboard can then show each product independently or aggregate the workspace into one view. The current Overview numbers are placeholders until those live connections and event pipelines are implemented.
+Each entity gets its own analytics properties, event dictionary, campaigns and connection records. The dashboard can show each product independently or aggregate the workspace into one view. CRM opportunity numbers are live; traffic, advertising and monetization numbers require their external connectors.
 
 Never store passwords, API keys, OAuth tokens, verification codes or raw exports in ordinary CRM records.
