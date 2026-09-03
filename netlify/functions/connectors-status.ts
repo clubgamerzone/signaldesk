@@ -17,5 +17,6 @@ export default async function handler(request: Request) {
     status('firebase', ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY']),
     status('netlify', ['NETLIFY_SITE_ID', 'NETLIFY_AUTH_TOKEN']),
     status('openai', ['OPENAI_API_KEY', 'OPENAI_MODEL']),
+    status('lead_intake', ['SUPABASE_SERVICE_ROLE_KEY', 'SIGNALDESK_INTAKE_TOKEN']),
   ] });
 }

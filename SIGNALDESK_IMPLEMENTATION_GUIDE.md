@@ -25,6 +25,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - The Overview now calculates opportunity count, estimated open-pipeline value, qualified progression, won count, stage funnel and recent inquiries from Supabase. Product and date selectors filter those queries; zero means no matching real records rather than missing demo data.
 - The Account registry now calls the authenticated `connectors-status` function and reports configuration readiness for seven providers without exposing secret values.
 - Every Account registry card opens a bilingual setup guide with provider-specific steps and environment-variable names; the interface never accepts secret values.
+- A protected `public-lead-intake` endpoint and `202609030002_lead_intake_details.sql` migration are ready to receive consented ClubGamerZone inquiries with contact, message, locale, page and UTM attribution.
 - A bilingual Guide & onboarding module and `docs/USER_GUIDE.md` explain the SaaS purpose, daily workflow, modules, roles, data-status indicators, safety rules and product roadmap.
 
 ## Where everything is
@@ -48,6 +49,7 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 
 - `supabase/migrations/202609010001_initial_crm.sql`: complete first database migration.
 - `supabase/migrations/202609030001_product_catalog.sql`: owner/admin catalog permissions and idempotent ClubGamerZone starter products.
+- `supabase/migrations/202609030002_lead_intake_details.sql`: optional inquiry contact, message, locale, page, consent and UTM fields.
 
 The migration creates:
 
@@ -66,6 +68,7 @@ Every business table contains `workspace_id`. Row-level security checks `workspa
 - `netlify/functions/connectors-status.ts`: reports which required server variables exist for GA4, Google Ads, AdMob, Meta, Firebase, Netlify and OpenAI. It returns variable names that are missing, never their values.
 - `netlify/functions/sync-google-reporting.ts`: retrieves read-only GA4, Google Ads and AdMob reports.
 - `netlify/functions/ai-recommendations.ts`: validates the signed-in workspace member and requests structured recommendations.
+- `netlify/functions/public-lead-intake.ts`: token-protected server-to-server website inquiry ingestion; it uses the service role only inside the function.
 - `netlify/functions/_shared/auth.ts`: verifies Supabase sessions and workspace membership for server requests.
 - `netlify.toml`: builds the Vite app, publishes `dist`, loads functions and maps `/api/*`.
 
@@ -113,6 +116,15 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 4. Open-pipeline value uses the midpoint of a lead's minimum and maximum estimate, or the available boundary when only one exists.
 5. Qualified progression counts records at qualified, proposal or won stages divided by all matching records.
 6. Traffic, ad spend and monetization remain pending until GA4, Google Ads and AdMob are connected.
+
+## Public inquiry workflow
+
+1. The ClubGamerZone browser submits to its own Netlify Function after explicit consent.
+2. That function validates the public payload and forwards it with a server-only shared token.
+3. SignalDesk checks the token with a timing-safe comparison, repeats field validation and resolves the workspace and product server-side.
+4. Only the SignalDesk function uses the Supabase service role; neither browser receives it.
+5. The lead is created at `new_inquiry` with source `Website form`, its project description and available UTM attribution.
+6. A honeypot and minimum form-completion time reject basic automated spam. Production should add a managed challenge or rate limiter if abuse appears.
 
 Product-specific lead assignment requires matching rows in `public.products`. Until those rows are created, use `All products`; newly entered records will be safely stored as unassigned rather than linked to an invented product.
 

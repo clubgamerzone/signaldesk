@@ -30,6 +30,8 @@ Nunca guardes contraseñas, códigos de verificación, llaves API privadas, llav
 4. **Measure / Medir:** compare products, campaigns and date ranges once live connectors are available.
 5. **Decide / Decidir:** review AI evidence, confidence, expected impact and risks; a person approves consequential actions.
 
+Once website lead intake is activated, consented ClubGamerZone forms appear automatically as **New inquiry / Nueva consulta** under the ClubGamerZone website product. Review the project message and attribution before contacting the lead.
+
 ## Pipeline stages / Etapas del embudo
 
 - `New inquiry / Nueva consulta`: received but not yet reviewed.

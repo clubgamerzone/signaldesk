@@ -53,6 +53,7 @@ const connections = [
   { provider: 'admob', name: 'Google AdMob', owner: 'Apps & games portfolio', icon: Smartphone, detail: 'Ad revenue, impressions, eCPM and fill rate' },
   { provider: 'firebase', name: 'Firebase', owner: 'Organify / apps', icon: Database, detail: 'App events and audience activity' },
   { provider: 'openai', name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, detail: 'Qualified conversations and summaries' },
+  { provider: 'lead_intake', name: 'Website lead intake', owner: 'ClubGamerZone website', icon: Inbox, detail: 'Consented project inquiries and UTM attribution' },
 ];
 
 const connectorVariables: Record<string, string[]> = {
@@ -63,6 +64,7 @@ const connectorVariables: Record<string, string[]> = {
   admob: ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_REFRESH_TOKEN', 'ADMOB_PUBLISHER_ID'],
   firebase: ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'],
   openai: ['OPENAI_API_KEY', 'OPENAI_MODEL'],
+  lead_intake: ['SUPABASE_SERVICE_ROLE_KEY', 'SIGNALDESK_INTAKE_TOKEN'],
 };
 
 export default function WorkspaceModule({ active, product, productKey, language, openLeadFormSignal = 0, onNavigate }: ModuleProps) {
@@ -85,6 +87,7 @@ export default function WorkspaceModule({ active, product, productKey, language,
   const connectorErrorMessage = connectorError === 'NETLIFY_RUNTIME_REQUIRED' ? text('Configuration status is available on the production site or when using Netlify Dev.', 'El estado de configuración está disponible en producción o al usar Netlify Dev.') : connectorError;
   const connectorStatusLabel = (provider: string) => connectorMode === 'loading' ? text('Checking', 'Comprobando') : connectorMode === 'error' ? text('Unavailable', 'No disponible') : connectorByProvider.get(provider)?.configured ? text('Configured', 'Configurado') : text('Needs setup', 'Requiere configuración');
   const connectorSteps = (provider: string) => {
+    if (provider === 'lead_intake') return [text('Apply the lead-intake-details database migration.', 'Aplica la migración de detalles de consultas.'), text('Generate one strong shared token and save it in both Netlify sites without exposing it to either browser application.', 'Genera un secreto compartido fuerte y guárdalo en ambos sitios de Netlify sin exponerlo a ninguna aplicación del navegador.'), text('Submit a consented test inquiry and confirm it appears under ClubGamerZone website.', 'Envía una consulta de prueba con consentimiento y confirma que aparezca en Sitio ClubGamerZone.')];
     if (provider === 'openai') return [text('Create or select an OpenAI API project with controlled billing and usage limits.', 'Crea o selecciona un proyecto de OpenAI API con facturación y límites de uso controlados.'), text('Save the API key and chosen model only in Netlify environment variables.', 'Guarda la clave API y el modelo elegido solamente en las variables de entorno de Netlify.'), text('Run a signed-in recommendation test before treating the connector as healthy.', 'Ejecuta una prueba autenticada de recomendación antes de considerar saludable la conexión.')];
     if (provider === 'netlify') return [text('Use the SignalDesk Netlify site ID and a least-privilege personal access token.', 'Usa el ID del sitio SignalDesk en Netlify y un token personal con privilegios mínimos.'), text('Store both values in the protected production environment.', 'Guarda ambos valores en el entorno protegido de producción.'), text('Verify forms and deployment events separately after configuration.', 'Verifica formularios y eventos de despliegue por separado después de configurar.')];
     if (provider === 'firebase') return [text('Select the Firebase project whose application events should be measured.', 'Selecciona el proyecto Firebase cuyos eventos de aplicación deben medirse.'), text('Create a reporting-only service identity and keep its private key server-side.', 'Crea una identidad de servicio solo para reportes y conserva su clave privada en el servidor.'), text('Validate the intended project and event stream before importing metrics.', 'Valida el proyecto y flujo de eventos correctos antes de importar métricas.')];
