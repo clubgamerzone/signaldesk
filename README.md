@@ -20,6 +20,8 @@ This first slice is a polished, responsive dashboard shell using clearly labelle
 - Selectable date ranges and a consistent responsive dashboard shell.
 - Supabase-backed opportunity table with persistent lead creation, product scoping and inline pipeline-stage updates.
 - Company, campaign, analytics, conversation and connection-registry views.
+- Owner/admin product catalog for separating websites, applications, games and SaaS offerings.
+- Bilingual in-app Guide & onboarding center covering goals, daily workflow, modules and data safety.
 - Honest pending states for every external integration.
 - Separate Google Ads acquisition reporting (spend, clicks, conversions and qualified-lead cost) from Google AdMob monetization reporting (revenue, impressions, eCPM and fill rate).
 - AI recommendations workspace with evidence, confidence, a proposed action and an explicit human-approval guardrail. Its current cards are representative until the analytics connectors and server-side AI endpoint are live.
@@ -69,6 +71,12 @@ Without environment variables, the dashboard intentionally runs in demo mode. Co
 - AI conversation summaries with consent and retention controls
 - Role-based access, workspace isolation and audit log
 - BigQuery analytics plus PostgreSQL operational CRM records
+
+## User documentation
+
+- Open **Guide & onboarding / Guía y configuración** inside SignalDesk for the operational introduction.
+- Read `docs/USER_GUIDE.md` for the complete bilingual onboarding, workflow, roles and roadmap reference.
+- Read `SIGNALDESK_IMPLEMENTATION_GUIDE.md` for architecture and maintenance details.
 
 ## Product reporting model
 

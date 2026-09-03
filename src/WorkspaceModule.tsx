@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { type LeadDraft, type LeadStage, useWorkspaceLeads } from './hooks/useWorkspaceLeads';
+import ProductCatalog from './ProductCatalog';
+import UserGuide from './UserGuide';
 
-type ModuleProps = { active: string; product: string; productKey: string; language: 'en' | 'es'; openLeadFormSignal?: number };
+type ModuleProps = { active: string; product: string; productKey: string; language: 'en' | 'es'; openLeadFormSignal?: number; onNavigate: (module: string) => void };
 type GeneratedInsight = { title: string; priority: string; confidence: number; evidence: Array<{ metric: string; value: string; comparison: string }>; suggested_action: string; expected_impact: string; risks: string[] };
 type Opportunity = { id?: string; name: string; email?: string | null; company: string; service: string; stage: string; stageKey: LeadStage; value: string; source: string };
 
@@ -52,7 +54,7 @@ const connections = [
   { name: 'AI assistant', owner: 'ClubGamerZone website', icon: Bot, status: 'Endpoint pending', detail: 'Qualified conversations and summaries' },
 ];
 
-export default function WorkspaceModule({ active, product, productKey, language, openLeadFormSignal = 0 }: ModuleProps) {
+export default function WorkspaceModule({ active, product, productKey, language, openLeadFormSignal = 0, onNavigate }: ModuleProps) {
   const [query, setQuery] = useState('');
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -102,7 +104,7 @@ export default function WorkspaceModule({ active, product, productKey, language,
     catch (error) { setLeadActionError(error instanceof Error ? error.message : text('The stage could not be updated.', 'No se pudo actualizar la etapa.')); }
   }
 
-  const title = active === 'Leads & pipeline' ? text('Sales pipeline', 'Embudo de ventas') : active === 'Companies' ? text('Companies', 'Empresas') : active === 'Campaigns' ? text('Campaigns', 'Campañas') : active === 'Analytics' ? text('Analytics', 'Analítica') : active === 'AI recommendations' ? text('AI recommendations', 'Recomendaciones IA') : active === 'Conversations' ? text('Conversations', 'Conversaciones') : text('Account registry', 'Registro de cuentas');
+  const title = active === 'Leads & pipeline' ? text('Sales pipeline', 'Embudo de ventas') : active === 'Companies' ? text('Companies', 'Empresas') : active === 'Campaigns' ? text('Campaigns', 'Campañas') : active === 'Analytics' ? text('Analytics', 'Analítica') : active === 'AI recommendations' ? text('AI recommendations', 'Recomendaciones IA') : active === 'Conversations' ? text('Conversations', 'Conversaciones') : active === 'Products & goals' ? text('Products & goals', 'Productos y objetivos') : active === 'Guide & onboarding' ? text('Guide & onboarding', 'Guía y configuración') : text('Account registry', 'Registro de cuentas');
   const subtitles: Record<string, string> = {
     'Leads & pipeline': text('Qualify every inquiry and keep the next action visible.', 'Califica cada consulta y mantén visible la próxima acción.'),
     Companies: text('A single relationship history for every account and client.', 'Un historial único de relación para cada cuenta y cliente.'),
@@ -110,8 +112,11 @@ export default function WorkspaceModule({ active, product, productKey, language,
     Analytics: text(`Performance across ${product.toLowerCase()}.`, `Rendimiento de ${product.toLowerCase()}.`),
     'AI recommendations': text('Evidence-backed opportunities generated from your connected marketing data.', 'Oportunidades respaldadas por evidencia y generadas desde tus datos de marketing.'),
     Conversations: text('Review inquiries, AI summaries and human follow-up.', 'Revisa consultas, resúmenes de IA y seguimiento humano.'),
+    'Products & goals': text('Define what the workspace markets and keep reporting scopes separated.', 'Define qué promociona el espacio y mantén separados los alcances de reporte.'),
     'Account registry': text('Connection ownership and readiness without storing passwords.', 'Controla conexiones y responsables sin guardar contraseñas.'),
+    'Guide & onboarding': text('Learn the product goals, workflow, modules and data-safety rules.', 'Aprende los objetivos, flujo, módulos y reglas de seguridad de datos.'),
   };
+  const showModuleTools = !['Products & goals', 'Guide & onboarding'].includes(active);
 
   async function generateRecommendations() {
     setGenerating(true); setAiError('');
@@ -132,7 +137,7 @@ export default function WorkspaceModule({ active, product, productKey, language,
   return <section className="workspace-module">
     <div className="module-header">
       <div><p className="eyebrow"><span /> {text('Workspace module', 'Módulo del espacio')}</p><h2>{title}</h2><p>{subtitles[active]}</p></div>
-      <div className="module-actions"><label className="module-search"><Search size={14} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={text('Search this module', 'Buscar en este módulo')} /></label><button className="button button-quiet"><Filter size={14} /> {text('Filter', 'Filtrar')}</button>{active === 'Leads & pipeline' && <button className="button button-primary" onClick={() => setShowLeadForm(true)}><Plus size={15} /> {text('Add lead', 'Añadir prospecto')}</button>}</div>
+      {showModuleTools && <div className="module-actions"><label className="module-search"><Search size={14} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={text('Search this module', 'Buscar en este módulo')} /></label><button className="button button-quiet"><Filter size={14} /> {text('Filter', 'Filtrar')}</button>{active === 'Leads & pipeline' && <button className="button button-primary" onClick={() => setShowLeadForm(true)}><Plus size={15} /> {text('Add lead', 'Añadir prospecto')}</button>}</div>}
     </div>
 
     {active === 'Leads & pipeline' && <>
@@ -152,7 +157,11 @@ export default function WorkspaceModule({ active, product, productKey, language,
 
     {active === 'Conversations' && <div className="conversation-layout"><div className="conversation-list"><button className="conversation-item selected"><span className="lead-avatar avatar-aqua">MR</span><span><strong>Mariana Rojas</strong><small>AI automation quotation</small></span><time>8m</time></button><button className="conversation-item"><span className="lead-avatar avatar-violet">SA</span><span><strong>Sofia Alvarez</strong><small>New website inquiry</small></span><time>2h</time></button><button className="conversation-item"><span className="lead-avatar avatar-coral">DL</span><span><strong>Daniel López</strong><small>Mobile product follow-up</small></span><time>1d</time></button></div><div className="conversation-preview"><div className="conversation-title"><div><strong>Mariana Rojas</strong><span>Northstar Health · AI assistant</span></div><Status value="Qualified" /></div><div className="summary-card"><Bot size={18} /><div><strong>Conversation summary</strong><p>Interested in automating intake and internal document review. Estimated 20–40 users. Requested a discovery call and a preliminary range.</p></div></div><div className="conversation-next"><CheckCircle2 size={17} /><div><strong>Recommended next action</strong><span>Reply with scheduling options and confirm the systems that require integration.</span></div></div><button className="button button-primary">Open conversation <ArrowUpRight size={14} /></button></div></div>}
 
+    {active === 'Products & goals' && <ProductCatalog language={language} />}
+
     {active === 'Account registry' && <><div className="registry-warning"><Database size={18} /><div><strong>{text('Connections are not live yet', 'Las conexiones aún no están activas')}</strong><span>{text('Use OAuth or environment secrets during implementation. Passwords and tokens must never be saved in ordinary CRM records.', 'Usa OAuth o secretos de entorno durante la implementación. Las contraseñas y tokens nunca deben guardarse en registros normales del CRM.')}</span></div></div><div className="connection-grid">{connections.map(item => <article className="connection-card" key={item.name}><span className="connection-icon"><item.icon size={18} /></span><div><h3>{item.name}</h3><p>{item.owner}</p></div><Status value={item.status} /><small>{item.detail}</small><button>{text('Configure', 'Configurar')} <ArrowUpRight size={13} /></button></article>)}</div></>}
+
+    {active === 'Guide & onboarding' && <UserGuide language={language} onNavigate={onNavigate} />}
 
     {showLeadForm && <div className="modal-backdrop" role="presentation" onMouseDown={() => setShowLeadForm(false)}><form className="lead-modal" onMouseDown={event => event.stopPropagation()} onSubmit={submitLead}><div className="modal-head"><div><span>{text('New opportunity', 'Nueva oportunidad')}</span><h3>{text('Add a lead', 'Añadir prospecto')}</h3></div><button type="button" aria-label={text('Close form', 'Cerrar formulario')} onClick={() => setShowLeadForm(false)}><X size={18} /></button></div><label>{text('Name', 'Nombre')}<input name="name" required placeholder={text('Contact name', 'Nombre del contacto')} /></label><label>{text('Company', 'Empresa')}<input name="company" placeholder={text('Company or organization', 'Empresa u organización')} /></label><div className="form-row"><label>Email<input name="email" required type="email" placeholder="name@company.com" /></label><label>{text('Source', 'Fuente')}<select name="source" defaultValue="Manual entry"><option value="Manual entry">{text('Manual entry', 'Entrada manual')}</option><option value="Website form">{text('Website form', 'Formulario web')}</option><option value="AI assistant">{text('AI assistant', 'Asistente IA')}</option><option value="Referral">{text('Referral', 'Referido')}</option><option value="LinkedIn">LinkedIn</option><option value="Google Ads">Google Ads</option><option value="Meta Ads">Meta Ads</option></select></label></div><div className="form-row"><label>{text('Minimum value (USD)', 'Valor mínimo (USD)')}<input name="estimatedValueMin" min="0" step="1" type="number" placeholder="5000" /></label><label>{text('Maximum value (USD)', 'Valor máximo (USD)')}<input name="estimatedValueMax" min="0" step="1" type="number" placeholder="10000" /></label></div><label>{text('Service', 'Servicio')}<select name="service" defaultValue="AI integration"><option>AI integration</option><option>Custom software</option><option>Web application</option><option>Mobile application</option><option>Game development</option><option>Project leadership</option></select></label>{leadFormError && <div className="auth-error">{leadFormError}</div>}<button className="button button-primary" type="submit" disabled={savingLead || leadMode !== 'live' || !selectedProductIsConfigured}>{saved ? <><CheckCircle2 size={15} /> {text('Saved to CRM', 'Guardado en el CRM')}</> : savingLead ? <><LoaderCircle className="spin" size={15} /> {text('Saving…', 'Guardando…')}</> : <><Plus size={15} /> {text('Create lead', 'Crear prospecto')}</>}</button>{(leadMode !== 'live' || !selectedProductIsConfigured) && <small className="form-help">{!selectedProductIsConfigured ? text('This product is not configured yet. Select All products to save an unassigned lead.', 'Este producto aún no está configurado. Selecciona Todos los productos para guardar un prospecto sin asignar.') : text('Live Supabase access is required to create persistent leads.', 'Se requiere acceso activo a Supabase para crear prospectos persistentes.')}</small>}</form></div>}
   </section>;

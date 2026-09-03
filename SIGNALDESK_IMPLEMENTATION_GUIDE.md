@@ -21,6 +21,8 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - Production is live at `https://signaldeskcrm.netlify.app` with Supabase authentication enabled. Netlify has the two public Supabase build variables and the production callback is registered in Supabase.
 - Google and OpenAI credentials are not configured yet, so external data and AI output are not live.
 - The Leads & pipeline module now loads real records from Supabase, creates persistent leads and saves stage changes. It uses representative records only when Supabase is not configured and labels that mode clearly.
+- The Products & goals module reads the workspace catalog and permits owners/admins to create or rename reporting scopes after the product-catalog migration is applied.
+- A bilingual Guide & onboarding module and `docs/USER_GUIDE.md` explain the SaaS purpose, daily workflow, modules, roles, data-status indicators, safety rules and product roadmap.
 
 ## Where everything is
 
@@ -31,11 +33,15 @@ SignalDesk is ClubGamerZone's private marketing CRM and analytics workspace. It 
 - `src/AuthGate.tsx`: Supabase email/password sign-in gate plus the secure password-setup screen used by recovery links.
 - `src/lib/supabase.ts`: browser-safe Supabase client initialization.
 - `src/hooks/useWorkspaceLeads.ts`: workspace membership lookup, product-aware lead loading, persistent creation and optimistic stage updates.
+- `src/hooks/useWorkspaceProducts.ts`: product-catalog loading plus owner/admin create and update operations.
+- `src/ProductCatalog.tsx`: catalog cards, product editor and permission/error states.
+- `src/UserGuide.tsx`: bilingual in-app onboarding and module guidance.
 - `src/styles.css`: responsive layout, themes, login and module styling.
 
 ### Database
 
 - `supabase/migrations/202609010001_initial_crm.sql`: complete first database migration.
+- `supabase/migrations/202609030001_product_catalog.sql`: owner/admin catalog permissions and idempotent ClubGamerZone starter products.
 
 The migration creates:
 
@@ -91,6 +97,14 @@ Never put passwords, refresh tokens, secret keys or the OpenAI API key into sour
 
 Product-specific lead assignment requires matching rows in `public.products`. Until those rows are created, use `All products`; newly entered records will be safely stored as unassigned rather than linked to an invented product.
 
+## Product catalog workflow
+
+1. Apply `202609030001_product_catalog.sql` after the initial schema.
+2. The migration adds a `can_manage_workspace` authorization helper and limits product creation/updates to owners and administrators.
+3. It idempotently creates the four ClubGamerZone starter scopes without duplicating matching records.
+4. Members and viewers retain read access through the existing policy.
+5. Product deletion is intentionally excluded because leads, metrics, recommendations and integrations may reference a product. A future archive workflow should replace destructive deletion.
+
 ## Activation sequence
 
 1. Open the newest Supabase password-recovery email and create the account password on the local SignalDesk screen.
@@ -129,6 +143,8 @@ The local Vite address is normally `http://127.0.0.1:5175/` in the current devel
 ## Related documentation
 
 - `README.md`: concise project summary.
+- `docs/USER_GUIDE.md`: bilingual user-facing purpose, onboarding, workflows, roles and roadmap.
+- `docs/README.md`: documentation index and update rules.
 - `BACKEND_SETUP.md`: configuration procedure.
 - `C:\Users\jay\Documents\ChatGPT\marketing\AI_MARKETING_COPILOT_SPEC.md`: detailed AI decision-support design.
 - `C:\Users\jay\Documents\ChatGPT\marketing\CRM_PRODUCT_SPEC.md`: original CRM/SaaS product specification.

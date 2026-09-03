@@ -15,6 +15,7 @@ The repository contains the production foundation for authentication, workspace 
 - September 1, 2026: configured `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Netlify, rebuilt successfully and verified that production shows the real Supabase sign-in screen. Three Netlify Functions were deployed.
 - Next manual step: sign in at `https://signaldeskcrm.netlify.app` with the owner email and the password created through the recovery flow, then verify workspace access. Do not store that password in this repository.
 - September 3, 2026: connected the Leads & pipeline interface to the existing `public.leads`, `workspace_members` and `products` tables. Lead creation and stage changes now persist through Supabase and remain protected by workspace row-level security.
+- September 3, 2026: added `202609030001_product_catalog.sql`, the Products & goals interface and bilingual user onboarding. The migration must be applied to enable owner/admin product creation and seed the initial ClubGamerZone reporting scopes.
 
 ## 1. Supabase
 
@@ -27,6 +28,8 @@ The repository contains the production foundation for authentication, workspace 
 The browser receives only the anonymous key. The service-role key is server-only. Row-level security uses `workspace_members` to isolate every record.
 
 The pipeline requires no new database migration. It uses the tables and policies already applied by `202609010001_initial_crm.sql`. Product-specific filtering becomes active as soon as matching product rows exist; unassigned leads remain visible under `All products`.
+
+Apply `supabase/migrations/202609030001_product_catalog.sql` once through the Supabase SQL Editor or migration workflow. It can be rerun safely: policies are replaced deliberately and starter products are inserted only when a case-insensitive matching name does not exist. After application, verify that the ClubGamerZone workspace contains four products and that an owner can create/edit a product while a viewer cannot.
 
 ## 2. Google reporting
 
